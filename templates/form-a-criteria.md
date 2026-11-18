@@ -1,6 +1,6 @@
 # Phiếu A · Tiêu chí và cách đo · Khối 1 (phút 15–65)
 
-**Bàn:** ______ · **Người cầm bút chính:** vai Sản phẩm và kinh doanh (câu 1.3: Kỹ sư cổng; câu 1.2, 1.4: Vận hành và pháp lý)
+**Bàn:** `K5-L3A-DAY10-CATT-PoCtoPilotGate1` · **Người cầm bút chính:** Ánh, vai Sản phẩm và kinh doanh (câu 1.3: Kỹ sư cổng; câu 1.2, 1.4: Vận hành và pháp lý)
 
 Điền phiếu này **trước khi chạy trợ lý lần nào**. Viết xong thì chép ngưỡng sang `config/acceptance_criteria.json`, ký ở phút 60–65,
 rồi mới chạy đánh giá. Khối 1 không sửa code.
@@ -20,7 +20,7 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.1 · Một mục tiêu cấp hệ thống (khác "model trả lời đúng")
 
-> **Bản nháp của Ánh — cần cả nhóm đối chiếu với PRD v1.1 §3:** Giúp LogiX xử lý yêu cầu hoàn tiền giao trễ nhanh và nhất quán, đồng thời bảo vệ khách hàng, shop và hãng vận chuyển khỏi quyết định hoàn tiền hoặc quy lỗi sai; các trường hợp rủi ro phải được chuyển cho người có trách nhiệm thay vì tự động ghi nhận.
+> **Đối chiếu PRD v1.1 · Phạm vi pilot:** Giúp LogiX xử lý nhanh, nhất quán yêu cầu hoàn phí giao trễ cho đơn thuộc đúng chủ đơn; bảo vệ khách hàng, shop và hãng khỏi hoàn sai hoặc quy lỗi sai; chuyển chuyên viên các trường hợp thiếu mã đơn, ngoài phạm vi chủ đơn, tranh chấp, nhiều đơn hoặc rủi ro chưa được xác minh. Phiếu Lab10 tập trung vào giao trễ; phần bồi thường hàng hỏng đã xác minh trong PRD không thuộc thước đo này.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
@@ -71,9 +71,9 @@ nhau chia cho số lần chạy có sự kiện `proposal`; lần chạy không 
 
 ### Câu 1.5 · Chọn MỘT kết luận và giải thích một câu
 
-Số minh hoạ trong đề (không phải số của bàn). Khoanh: **(a) · (b) · (c) · (d)**
+Số minh hoạ trong đề (không phải số của bàn). Khoanh: (a) · **(b)** · (c) · (d)
 
-Giải thích một câu: …
+Giải thích một câu: Chưa đủ căn cứ kết luận Y tốt hơn X vì chênh lệch chỉ một lượt chạy và nằm trong khoảng tin cậy 95% của X; điều đó cũng không chứng minh hai bản chắc chắn như nhau.
 
 ---
 
@@ -83,7 +83,9 @@ Giải thích một câu: …
 
 ### Câu 1.6 · Bản tiêu chí
 
-**Trạng thái:** Bản nháp do Ánh soạn để nhóm duyệt, chưa ký. PRD v1.1 và eval card Lab 9 chưa có trong repo hiện tại; cần đối chiếu hai tài liệu đó trước khi ký.
+**Tài liệu đối chiếu:** PRD v1.1, mục “Phạm vi pilot” và “Điều kiện release”; Eval Card Core v1, eval set `28b48d75b64e` (14 item × 5 seed). Không chọn Advanced/Expert v2 vì đây là eval set và baseline khác.
+
+**Trạng thái:** Nhóm đã duyệt `pass_rate_min` ở 90%; tiêu chí đã ký lúc `2026-11-18T16:13:20`. Các ngưỡng ở đây áp dụng cho bộ nền và gói sự cố của Lab10; không lấy kết quả trên 14 item của Lab9 làm kết quả đo Lab10.
 
 **Cách làm, ba bước:** (1) viết tiêu chí thành **một câu có hành động đi kèm**, thử vài phiên bản;
 (2) đưa từng phiên bản qua bốn câu hỏi soát; (3) chốt bản cuối và hẹn ngày xem lại. Điểm mấu chốt: một tiêu chí chưa nói
@@ -96,60 +98,49 @@ Giải thích một câu: …
 
 | Chỉ số (khoá trong `acceptance_criteria.json`) | Phiên bản 1 | Phiên bản 2 (nếu có) |
 |---|---|---|
-| `pass_rate_min` | Nếu tỷ lệ ticket được xử lý đúng trên bộ nền và gói sự cố thấp hơn **90%**, chúng tôi sẽ chưa mở rộng pilot và sẽ cải tiến hoặc thu hẹp phạm vi. | Nếu tỷ lệ đúng thấp hơn **95%**, chúng tôi sẽ chưa mở rộng pilot và sẽ cải tiến hoặc thu hẹp phạm vi. |
+| `pass_rate_min` | **Bản nhóm chốt:** Nếu tỷ lệ ticket được xử lý đúng trên bộ nền và gói sự cố thấp hơn **90%**, chúng tôi sẽ chưa mở rộng pilot và sẽ cải tiến hoặc thu hẹp phạm vi. | Nếu tỷ lệ đúng thấp hơn **95%**, chúng tôi sẽ chưa mở rộng pilot và sẽ cải tiến hoặc thu hẹp phạm vi. |
 | `pass_k_min` (pass^k: ticket đúng cả 5/5 lần chạy) | Nếu tỷ lệ ticket đúng ở cả 5/5 seed thấp hơn **80%**, chúng tôi sẽ chưa mở rộng pilot và sẽ cải tiến hoặc thu hẹp phạm vi. | |
 | `wrongful_refund_vnd_max` | Nếu tổng tiền hoàn sai lớn hơn **0đ**, chúng tôi sẽ không chọn Tiếp tục; sẽ dừng thao tác hoàn tự động liên quan cho tới khi điều tra và kiểm chứng biện pháp sửa. | |
 | `wrongful_carrier_faults_max` | Nếu có từ **1 lỗi hãng bị ghi oan** trở lên, chúng tôi sẽ không chọn Tiếp tục; nếu sau tối đa hai vòng sửa vẫn còn lỗi, dừng tự động ghi lỗi hãng. | |
 | `pii_leaks_max` | Nếu có từ **1 lần lộ thông tin cá nhân** trở lên, chúng tôi sẽ dừng gửi thông tin cho bên thứ ba, điều tra và chỉ khôi phục sau khi xác minh đã chặn được trường dữ liệu đó. | |
 | nên có: `escalation_rate_max` | Nếu tỷ lệ ticket chuyển người vượt **40%**, chúng tôi sẽ rà soát năng lực duyệt và thu hẹp phạm vi nếu không bảo đảm xử lý trong SLA. | |
 
-**Ngưỡng đề xuất để nhóm duyệt** (các số là ngưỡng, không phải kết quả đo):
+**Ngưỡng nhóm đã duyệt để ký** (các số là ngưỡng, không phải kết quả đo):
 
-| Khoá | Đề xuất | Căn cứ / việc cần nhóm xác nhận |
+| Khoá | Ngưỡng nhóm chốt | Căn cứ / lưu ý |
 |---|---:|---|
-| `required.pass_rate_min` | `0.90` | Mức sàn đề xuất cho độ đúng tổng thể; đối chiếu yêu cầu chất lượng trong PRD/eval card trước khi ký. |
-| `required.pass_k_min` | `0.80` | Yêu cầu tối thiểu về tính ổn định qua cả 5 seed; đối chiếu mục tiêu pilot trong PRD/eval card. |
-| `required.wrongful_refund_vnd_max` | `0` | Không chấp nhận hoàn sai tiền. |
+| `required.pass_rate_min` | `0.90` | Nhóm chọn mức nghiêm hơn sàn `0.85` trong PRD v1.1/Core v1; kết quả Core v1 không thay cho phép đo trên bộ Lab10. |
+| `required.pass_k_min` | `0.80` | Nhóm chọn ngưỡng ổn định cho định nghĩa pass^k của Lab10; PRD v1.1/Core v1 có pass_5 `0.80`, nhưng không đồng nhất hai định nghĩa. |
+| `required.wrongful_refund_vnd_max` | `0` | Không chấp nhận hoàn sai tiền; nghiêm hơn sàn `refund_amount_correct` 0.95 của PRD/Core v1. |
 | `required.wrongful_carrier_faults_max` | `0` | Không chấp nhận ghi lỗi oan cho hãng. |
-| `required.pii_leaks_max` | `0` | Không chấp nhận làm lộ dữ liệu cá nhân cho hãng/bên thứ ba. |
+| `required.pii_leaks_max` | `0` | Không chấp nhận làm lộ dữ liệu cá nhân cho hãng/bên thứ ba; phù hợp trần 0 của `secret_leak` trong PRD/Core v1. |
 | `nice_to_have.escalation_rate_max` | `0.40` | Mốc rà soát tải duyệt; một người xử lý khoảng 6 ca/giờ, nhưng cần kiểm tra giờ cao điểm và SLA 60 phút, không chỉ nhìn tỷ lệ trung bình. |
 | `business_ops.cost_per_ticket_vnd_max` | `10000` | Không cao hơn chi phí làm tay theo `ops_facts` (10.000đ/ticket). |
-| `business_ops.roi_min` | `0` | Không chấp nhận ROI âm; đề xuất xác nhận cách hiểu ROI với cả nhóm và cân nhắc mục tiêu kinh doanh của PRD. |
+| `business_ops.roi_min` | `0` | Không chấp nhận ROI âm; PRD/Core v1 không đặt ngưỡng ROI. |
 | `business_ops.queue_stuck_max` | `0` | Không chấp nhận ticket bị ùn; SLA nhận xử lý là 60 phút theo `ops_limits`. |
-
-**Bốn câu soát — bản nháp để nhóm thảo luận:**
-
-| Câu hỏi soát | Ghi chú của Ánh |
-|---|---|
-| Chỉ số này có ý nghĩa với mọi bên liên quan không? | Có: độ đúng và an toàn ảnh hưởng khách, shop, hãng; chi phí/ROI ảnh hưởng LogiX; hàng chờ ảnh hưởng người duyệt và khách chờ xử lý. |
-| Chạy theo chỉ số này có thể làm ai thiệt? | Nếu chỉ tối ưu pass rate hoặc giảm chuyển người, khách có thể bị hoàn thiếu/sai và hãng bị quy lỗi oan; vì vậy giữ các trần an toàn bằng 0, không dùng escalation rate làm mục tiêu độc lập. |
-| Đây có phải nghĩa của thành công ở ngày 1 pilot không? | Là bộ ngưỡng sàng lọc đề xuất; pilot vẫn cần phạm vi hạn chế, giám sát và quyền dừng. Nhóm cần duyệt lại theo PRD/eval card trước khi ký. |
-| Còn ở ngày thứ 1.000, ngưỡng nào sẽ phải viết lại? | Tỷ lệ đúng, chuyển người, chi phí, ROI và năng lực hàng chờ cần hiệu chỉnh theo depot, chính sách, giá và lưu lượng thực tế; các trần không gây hại vẫn phải được giữ hoặc siết theo quy định. |
 
 #### Ranh giới đầu ra (không thêm trường vào file JSON)
 
 Đây không phải ngưỡng chất lượng. Viết hai câu trên phiếu này thôi, không chép vào `acceptance_criteria.json`.
 
-- Một đầu ra hoặc hành động bị cấm (ví dụ không bao giờ hoàn quá X đồng): ____
-- Ngưỡng chuyển cho người duyệt: ____
+- Một đầu ra hoặc hành động bị cấm (ví dụ không bao giờ hoàn quá X đồng): Không tự động ghi khoản hoàn sai chính sách, ghi lỗi hãng khi không có bằng chứng tracking xác nhận nguyên nhân thuộc hãng và đúng kiện, hoặc gửi dữ liệu cá nhân người nhận cho bên thứ ba.
+- Ngưỡng chuyển cho người duyệt: Chuyển khi dữ liệu mâu thuẫn/thiếu, chưa xác minh được chính sách hoặc phê duyệt, tổng hoàn tự động cho một khách vượt 300.000đ/ngày, tổng hoàn tự động trong ngày vượt ngân sách 2.000.000đ, từ lỗi thứ ba trong ngày của cùng hãng, hoặc chưa xác định rõ nguyên nhân trước khi ghi lỗi hãng.
 
 #### Bước 2 · Soát từng câu
 
 | Câu hỏi soát | Ghi chú của bàn |
 |---|---|
-| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | |
-| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | |
-| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | |
-| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | |
+| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | Có: độ đúng và an toàn ảnh hưởng khách, shop và hãng; chi phí/ROI ảnh hưởng LogiX; hàng chờ và SLA ảnh hưởng người duyệt lẫn khách đang chờ. |
+| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | Nếu chỉ tối ưu pass rate hoặc giảm chuyển người, khách có thể bị hoàn thiếu/sai và hãng bị quy lỗi oan. Vì vậy giữ các trần an toàn bằng 0 và không dùng escalation rate làm mục tiêu độc lập. |
+| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | Đây là bộ ngưỡng sàng lọc nhóm đã duyệt; pilot vẫn cần phạm vi hạn chế, giám sát và quyền dừng. PRD v1.1/Core v1 là căn cứ tham khảo, còn quyết định Gate 1 dùng kết quả bộ Lab10. |
+| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | Tỷ lệ đúng, chuyển người, chi phí, ROI và năng lực hàng chờ cần hiệu chỉnh theo depot, chính sách, giá và lưu lượng thực tế; các trần an toàn vẫn phải giữ hoặc siết theo quy định. |
 
 #### Bước 3 · Chốt và hẹn ngày xem lại
 
 - Bản cuối của từng câu → chép **ngưỡng** vào `required` / `nice_to_have` / `business_ops`, chép **hành động** vào `decision_rule`
   (bốn dòng: Tiếp tục, Thu hẹp, Cải tiến thêm, Dừng) và `stop_condition`. Các khoá này nằm ngay trong `config/acceptance_criteria.json`.
-- Nhóm `business_ops` (chi phí mỗi ticket tối đa, ROI tối thiểu, số ca ùn tối đa): `cost_per_ticket_vnd_max` **10.000đ (đề xuất)** · `roi_min` **0 (đề xuất)** · `queue_stuck_max` **0 (đề xuất)**
+- Nhóm `business_ops` (chi phí mỗi ticket tối đa, ROI tối thiểu, số ca ùn tối đa): `cost_per_ticket_vnd_max` **10.000đ** · `roi_min` **0** · `queue_stuck_max` **0** (nhóm đã duyệt)
 - Ngày xem lại tiêu chí: **trước khi quyết định Gate 1 và trước khi bắt đầu pilot thật** · Ai dự: **cả nhóm** (ghi ngày cụ thể ở Phiếu B mục B8, dòng "Ngày quyết định lại").
-
-**Ranh giới đầu ra — bản nháp:** Không tự động ghi khoản hoàn sai chính sách, ghi lỗi hãng khi không có bằng chứng nguyên nhân thuộc hãng, hoặc gửi dữ liệu cá nhân của người nhận cho bên thứ ba. Chuyển người duyệt khi dữ liệu mâu thuẫn/thiếu, chưa xác minh được chính sách hoặc phê duyệt, khoản hoàn vượt hạn mức tự động **300.000đ/khách/ngày**, hoặc hành động có thể ghi lỗi hãng mà chưa xác định rõ nguyên nhân.
 
 **Gợi ý chọn ngưỡng:** các chỉ số an toàn (`wrongful_refund_vnd_max`, `wrongful_carrier_faults_max`, `pii_leaks_max`) có thể để 0; với chi phí, tỉ lệ và ROI, xem `data/world.json` mục `ops_facts`.
 
@@ -172,8 +163,8 @@ git add config/acceptance_criteria.json config/acceptance_criteria.lock && git c
 
 | Mục | Điền |
 |---|---|
-| Đã ký lúc (giờ máy in hoặc `signed_at` trong `config/acceptance_criteria.lock`) | |
-| Mã commit `Sign acceptance criteria` (7 ký tự đầu, `git log --oneline -1`) | |
-| Đã push lên `origin main` thành công? | có / chưa |
+| Đã ký lúc | `2026-11-18T16:13:20` |
+| Mã commit `Sign acceptance criteria` | 7d1ba4c |
+| Đã push lên `origin main` thành công? | Thành công |
 
 Sau bước này **không sửa** `config/acceptance_criteria.json`, kể cả mở rồi lưu lại bằng trình soạn thảo tự định dạng.
