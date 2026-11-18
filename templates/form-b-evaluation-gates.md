@@ -1,6 +1,6 @@
 # Phiếu B · Đo, rủi ro, cổng vòng 1 và quyết định v1 · Khối 2A + 2B + chốt (phút 65–115)
 
-**Bàn:** ______
+**Bàn:** `K5-L3A-DAY10-CATT-PoCtoPilotGate1`
 
 Tiêu chí đã ký ở Phiếu A. Từ phút 65 bàn mới được chạy trợ lý. Khối 2A (65–85) chưa sửa code hay config. Khối 2B (85–105) sửa
 `lab10/guards.py` và `config/operating_gates.json`. Phút 105–115 chốt cổng vòng 1 rồi viết quyết định v1. Sau phút 115 không sửa phiếu này
@@ -196,7 +196,7 @@ Không bắt buộc điền đủ năm dòng. Bắt buộc: **ít nhất ba dòn
 
 | Thành phần | Guideword | Lệch cụ thể | Hậu quả, cho ai | Cổng đề xuất: code hay con số nào trong `config/operating_gates.json` |
 |---|---|---|---|---|
-| Người duyệt (vận hành) | INCAPABLE | Chỉ 1 người trực, công suất 6 ca/giờ; 14 ca tới trong một giờ thì ca cuối phải chờ hơn 2 giờ, vượt hạn 60 phút | Khách chờ lâu, chị Hạnh bị dồn ca, hạn 60 phút bị vỡ | Tăng `operations.reviewers_on_shift` (cân nhắc phí giữ chỗ 30.000đ mỗi người mỗi ca), đặt `max_queue_wait_minutes` = 60 và ngưỡng gọi thêm người |
+| Người duyệt (vận hành) | INCAPABLE | Nếu chỉ 1 người trực (mặc định của lab), công suất 6 ca/giờ; 14 ca tới trong một giờ thì ca cuối phải chờ hơn 2 giờ, vượt hạn 60 phút | Khách chờ lâu, chị Hạnh bị dồn ca, hạn 60 phút bị vỡ | Tăng `operations.reviewers_on_shift` (cân nhắc phí giữ chỗ 30.000đ mỗi người mỗi ca), đặt `max_queue_wait_minutes` = 60 và ngưỡng gọi thêm người |
 | Ngân sách (kinh doanh) | WRONG | Tổng hoàn tự động trong ngày vượt 2.000.000đ (ngân sách Finance) mà không ai được báo | LogiX chi quá mức Finance cho phép; chị Oanh phải đối soát lại | Đặt `business.daily_refund_cap_vnd` không vượt 2.000.000đ và báo vào `operations.alert_channel` (nhờ Ánh đặt số) |
 
 **Ví dụ mẫu (`issue_refund`, đừng chép):** tham số `amount_vnd` · WRONG · số tiền tính từ số ngày khách tự khai · LogiX mất
