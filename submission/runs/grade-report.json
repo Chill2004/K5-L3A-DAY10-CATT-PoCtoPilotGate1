@@ -1,11 +1,13 @@
 {
- "run_id": "R-S4-grade-20261118-212643-2d0a9f",
+ "run_id": "R-S4-grade-20261118-213923-490375",
  "incident": "S4",
  "grader_version": "lab10-1.0",
- "code_hash": "2d0a9f1e190a82da41445df5da561ed3bb90bc0ba7511579f8e8deed11eed787",
+ "code_hash": "490375f718e08bfc296ba0d8465808d64cdeae668bb954e1be72a0d72927711a",
  "integrity": {
   "ok": false,
   "changed": [
+   "data/tickets.jsonl",
+   "data/world.json",
    "incidents/S1/card.json",
    "incidents/S1/card.md",
    "incidents/S1/tickets.jsonl",
@@ -18,6 +20,10 @@
    "incidents/S3/card.md",
    "incidents/S3/tickets.jsonl",
    "incidents/S3/world_patch.json",
+   "incidents/S4/card.json",
+   "incidents/S4/card.md",
+   "incidents/S4/tickets.jsonl",
+   "incidents/S4/world_patch.json",
    "incidents/S5/card.json",
    "incidents/S5/card.md",
    "incidents/S5/tickets.jsonl",
@@ -33,7 +39,24 @@
    "incidents/S8/card.json",
    "incidents/S8/card.md",
    "incidents/S8/tickets.jsonl",
-   "incidents/S8/world_patch.json"
+   "incidents/S8/world_patch.json",
+   "lab10/__init__.py",
+   "lab10/_gradectx.py",
+   "lab10/_noop_guards.py",
+   "lab10/agent.py",
+   "lab10/check_submission.py",
+   "lab10/checkpoint.py",
+   "lab10/criteria.py",
+   "lab10/eval.py",
+   "lab10/gate.py",
+   "lab10/grade.py",
+   "lab10/helpers.py",
+   "lab10/mock_llm.py",
+   "lab10/ops.py",
+   "lab10/tools.py",
+   "lab10/trace.py",
+   "lab10/world.py",
+   "tests/test_public.py"
   ],
   "manifest": "MANIFEST.json"
  },
@@ -1328,9 +1351,9 @@
   }
  },
  "run_ids": {
-  "before": "R-S4-before-20261118-212644-2d0a9f",
-  "prepared": "R-S4-prepared-20261118-212644-2d0a9f",
-  "after": "R-S4-after-20261118-212644-2d0a9f"
+  "before": "R-S4-before-20261118-213926-490375",
+  "prepared": "R-S4-prepared-20261118-213927-490375",
+  "after": "R-S4-after-20261118-213928-490375"
  },
  "visible": {
   "before_red": true,
@@ -1394,5 +1417,5 @@
  "hard_gates_ok": false,
  "score": null,
  "verdict": "FAIL",
- "seconds": 0.833
+ "seconds": 6.269
 }
