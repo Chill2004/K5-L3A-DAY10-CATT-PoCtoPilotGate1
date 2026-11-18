@@ -24,8 +24,8 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
-- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): …
-- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): …
+- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): Cuối mỗi tuần, mọi khoản hoàn tiền trong sổ cái khớp với căn cứ (chính sách đang hiệu lực, phê duyệt hợp lệ nếu vượt hạn mức) và đúng bên chịu tiền; hãng vận chuyển chỉ bị ghi lỗi khi tracking có nguyên nhân trễ, để chị không phải dò tay từng dòng.
+- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): Số ca trợ lý chuyển sang vừa sức một người duyệt (khoảng 6 ca/giờ), mỗi ca được xử lý trong hạn 60 phút, và mỗi ca kèm ghi chú giải thích để kiểm lại nhanh, không bị dồn ca vào giờ cao điểm.
 
 ---
 
@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | |
-| **Thước đo** (một câu, có đơn vị) | | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
-| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
+| **Bước / hành vi được đo** | | Ghi lỗi cho hãng vận chuyển (`file_carrier_fault`) |
+| **Thước đo** (một câu, có đơn vị) | | Số lần ghi lỗi hãng mà tracking không có nguyên nhân trễ được ghi nhận, tính theo từng hãng, theo ngày |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | Sổ ghi lỗi hãng (`faults`) và sự kiện `tracking` (trường `cause_recorded`) trong log của trợ lý; không cần nhãn, chỉ đối chiếu hai nguồn có sẵn |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | Đếm số lần ghi lỗi có `cause_recorded` = false theo hãng và theo ngày; ca thiếu dữ liệu tracking thì đếm riêng, không bỏ khỏi báo cáo |
+| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | Cửa sổ 24 giờ cuốn chiếu; báo động ngay khi có từ 1 ca (hãng GHSH bị phạt 150.000đ mỗi lần và bị đình chỉ sau 3 lần trong 7 ngày, chờ tới lần thứ ba là muộn) |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | | Không thấy trường hợp chính tracking ghi sai nguyên nhân trễ |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
