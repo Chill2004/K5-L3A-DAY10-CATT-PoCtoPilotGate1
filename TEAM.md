@@ -13,7 +13,7 @@ Họ tên đầy đủ và MSSV của **mọi** thành viên; thêm dòng nếu 
 
 | STT | Họ và tên | MSSV | Vai | Trưởng nhóm |
 | --: | --------- | ---- | --- | :---------: |
-|   1 | Nguyễn Hữu Cường | 2A202603355 | Kỹ sư cổng | Có |
+|   1 | Nguyễn Thế Cường | 2A202603355 | Kỹ sư cổng | Có |
 |   2 | Hoàng Ngọc Minh Trí | 2A202603379 | Kỹ sư cổng | |
 |   3 | Chử Thị Ánh | 2A202603360 | Sản phẩm và kinh doanh | |
 |   4 | Nguyễn Anh Tú | 2A202603434 | Vận hành và pháp lý | |
@@ -32,27 +32,34 @@ Ghi `members` trong `submission/submission.json` theo dạng `"HoVaTen-MSSV"`, k
 
 Mỗi thành viên tự viết một mục bên dưới (chép mẫu, đổi tiêu đề thành họ tên không dấu và MSSV, ví dụ `## NguyenVanAn-20241234`).
 
-## NguyenHuuCuong-2A202603355
-
-Cần thay `Cuong` trong tiêu đề bằng họ tên đầy đủ không dấu trước khi nộp.
+## NguyenTheCuong-2A202603355
 
 ### Phần việc phụ trách
 
-Kỹ sư cổng và trưởng nhóm. Phụ trách câu 1.3, thiết kế metric offline cho bước chọn độ trễ tại Phiếu A mục A2. Viết và sửa `lab10/guards.py`, điền Phiếu B mục B7.1 và phần sửa code tại Phiếu C mục C7. Quản lý Git, thực hiện ký tiêu chí sau khi nhóm duyệt, chốt cổng vòng 1 và push bài.
+Kỹ sư cổng và trưởng nhóm. Câu 1.3 (metric offline cho bước chọn độ trễ, Phiếu A mục A2). Viết `lab10/guards.py` vòng 1 và điền Phiếu B mục B7.1; vòng 2 dò trace `S4-08` và sửa cổng cho thẻ S4, phần code ở Phiếu C mục C7. Quản lý Git của bàn: ký tiêu chí sau khi nhóm duyệt, chốt cổng vòng 1, gộp nhánh và push bài.
 
 ### Đóng góp cụ thể
 
-Đã bổ sung thiết kế metric chọn độ trễ tại A2, gồm thước đo, dữ liệu và người tạo nhãn chuẩn, công thức tính, xử lý ca thiếu dữ liệu và điểm mù. Các phần code, ký tiêu chí và chốt vòng 1 sẽ cập nhật theo tiến độ thực tế.
+- Vòng 1: viết ba cổng trong `lab10/guards.py`: `pre_guard` ghim chính sách có hiệu lực theo `as_of`; `write_gate` nhánh `issue_refund` tính lại quyền lợi từ tracking DB và chính sách, kiểm phê duyệt, chặn ghi lặp; nhánh `file_carrier_fault` chỉ cho ghi lỗi hãng khi tracking có nguyên nhân và đủ độ trễ. Ở mốc prepared trên thẻ S4, lỗi ghi oan cho hãng giảm từ 27 xuống 0, hoàn sai từ 160.000đ xuống 0.
+- Vòng 2: dò `S4-08@11` (LLM trả 429, rơi về `fail_open`, cổng vẫn chặn ghi lỗi hãng VNX vì nguyên nhân thật là `MERCHANT_HANDOVER`) và `S4-08@22` (đạt). Thêm cổng trần hoàn tự động trong ngày; nhóm giữ bản của Tú khi gộp vì cho cùng kết quả (tổng hoàn tự động 466.000đ ở base, còn 292.000đ ≤ 300.000đ ở after).
+- Tìm và sửa lỗi xuống dòng: Git trên Windows (`core.autocrlf=true`) làm hash file khoá lệch MANIFEST, và hash tiêu chí đã ký là của bản CRLF. Thêm `.gitattributes` để tiêu chí và bản chốt vòng 1 giữ đúng hash trên mọi máy, kể cả máy của team chấm.
+- Gộp nhánh: phát hiện nhánh `ntc` mang thay đổi xoá trắng tiêu chí đã ký, `operating_gates.json` và Phiếu A khi merge; trả lại đúng bản `main` trước khi commit.
 
-Sử dụng ChatGPT/Codex để đọc hướng dẫn, hỗ trợ phân công và soạn nội dung metric câu 1.3 cùng mục cá nhân này.
+Sử dụng ChatGPT/Codex và Claude để đọc mã nguồn, chẩn đoán lỗi hash và xung đột merge, soạn nháp nội dung phiếu và mục này. Tôi đọc lại, chạy lại `python -m lab10.grade --incident S4` và `python -m unittest` trên máy mình trước khi push.
 
 ### Bằng chứng
 
-`templates/form-a-criteria.md`, mục A2, cột Offline câu 1.3. Mã commit và mã lần chạy sẽ bổ sung sau khi thực hiện.
+- `lab10/guards.py`, `lab10/guards_round1.py`; Phiếu A mục A2 (câu 1.3); Phiếu B mục B7.1; Phiếu C mục C7.
+- Commit: `5776831` (chốt vòng 1 và bằng chứng Gate 1), `aa13f14` (cổng trần ngày, `.gitattributes`), `7336d9e` (gộp `main` vào `ntc`).
+- Lần chạy: `R-S4-prepared-20261118-212644-2d0a9f`, `R-S4-after-20261118-212644-2d0a9f`, `R-base-after-20261118-212643-2d0a9f`; trace `S4-08@11`, `S4-08@22`.
 
 ### Exit ticket
 
-Cường tự bổ sung một điều học được và một điều còn chưa chắc trước khi nộp.
+*(Bản nháp, Cường đọc và sửa theo ý mình trước khi nộp.)*
+
+Điều học được: cổng kiểm lệnh ghi so với nguồn sự thật (tracking DB) thì không phụ thuộc LLM đúng hay lỗi, nên S4-08 vẫn an toàn khi LLM rơi về `fail_open`; nhưng cổng kỹ thuật không giải quyết được ngân sách và người trực, phải có con số trong config và người chịu trách nhiệm. Ngoài ra, một khác biệt xuống dòng LF/CRLF cũng đủ làm hỏng "ký trước khi đo", nên tính toàn vẹn phải được kiểm trên đúng máy của người chấm.
+
+Điều còn chưa chắc: trần 300.000đ chỉ đúng cho ngày 11.11 trong dữ liệu giả lập; chưa biết bài kiểm tra ẩn có ngày với ngân sách khác không, và cổng "LLM lỗi thì chuyển người" có làm hàng chờ ùn khi LLM lỗi kéo dài hơn trong pilot thật hay không.
 
 ## ChuThiAnh-2A202603360
 
