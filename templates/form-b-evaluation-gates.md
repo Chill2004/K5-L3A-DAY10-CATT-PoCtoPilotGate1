@@ -419,22 +419,22 @@ bao nhiêu thời gian? (3) Có phần nào của dự án không nên làm ti�
 
 | | **v1** (phút 105–115, TRƯỚC khi nhận thẻ sự cố) |
 |---|---|
-| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | |
-| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | |
-| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: ________ · bộ nền với cổng vòng 1 (prepared): ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
-| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
-| Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
-| Khớp dòng nào trong `decision_rule` đã ký? | |
-| Nếu Thu hẹp: cắt phần nào, vì sao | |
-| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | |
-| Nếu Dừng: bài học ghi lại | |
-| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | |
-| Ngày quyết định lại (trừ khi Dừng) | |
-| PIC ký | |
+| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | `4b87d77` (`Sign acceptance criteria`) |
+| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | `a6762b7a` |
+| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: `R-base-before-20261118-162921-7b0ef9` · bộ nền với cổng vòng 1 (prepared): `R-base-prepared-20261118-172041-a04730` |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Report prepared không có vượt trần tổng thể: pass_rate 1.0, pass_k 1.0; hoàn sai, lỗi hãng oan, lộ PII và queue_stuck đều 0; chi phí 5.565đ/ticket, ROI 0.8. Tuy nhiên, phân khúc kho `?` có chi phí 10.359đ/ticket, cao hơn chi phí làm tay 10.000đ. |
+| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | Kho `?` (5 trials): 10.359đ/ticket, cao hơn làm tay; không có lỗi an toàn. Có: không nên tự động xử lý ticket chưa xác định được kho cho tới khi phân loại được. Các kho CT, DN, HCM, HN đều dưới 10.000đ/ticket trong report. |
+| Quyết định (khoanh một) | **Thu hẹp** |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-base-prepared-20261118-172041-a04730`: pass_rate 1.0 (ngưỡng ≥ 0.9), pass_k 1.0 (ngưỡng ≥ 0.8); các ngưỡng an toàn đều đạt. |
+| Bằng chứng 2 | Cùng report: hoàn sai 0đ, lỗi hãng oan 0, lộ PII 0, queue_stuck 0; tổng hoàn tự động 155.000đ, thấp hơn ngân sách 2.000.000đ. |
+| Bằng chứng 3 | Chi phí trung bình 5.565đ/ticket và ROI 0.8 đạt ngưỡng đã ký; riêng kho `?` có 5 trials, 10.359đ/ticket, vượt mức làm tay 10.000đ. |
+| Khớp dòng nào trong `decision_rule` đã ký? | “Thu hẹp”: giữ phân khúc có bằng chứng đạt, ghi rõ ticket bị loại và đường chuyển người; phù hợp thêm với ngưỡng đỏ chi phí theo phân khúc đã ghi ở B7.5. |
+| Nếu Thu hẹp: cắt phần nào, vì sao | Tạm không tự động xử lý ticket chưa xác định được kho (nhóm `?`); chuyển các ticket đó sang quy trình làm tay. Giữ các kho CT, DN, HCM, HN trong phạm vi đã có số liệu dưới 10.000đ/ticket. Chỉ áp dụng phạm vi này sau khi cập nhật config và chạy lại prepared để xác nhận. |
+| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | Không áp dụng. |
+| Nếu Dừng: bài học ghi lại | Không áp dụng. |
+| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | Danh sách 5 ticket thuộc kho `?` và nguyên nhân thiếu mã kho; cần xác minh nguồn dữ liệu, sau đó chạy lại prepared với phạm vi đã chốt. |
+| Ngày quyết định lại (trừ khi Dừng) | Sau khi xác minh 5 ticket kho `?`, cập nhật phạm vi pilot và chạy lại prepared; hoàn tất trước khi mở pilot. |
+| PIC ký | Chờ NV-TUNG xác nhận quyết định và ký. |
 
 Xong v1 thì lưu và đẩy một bản (sau mốc này không sửa cột v1):
 
