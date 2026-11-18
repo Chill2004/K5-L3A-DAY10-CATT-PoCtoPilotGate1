@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 {
  "sha256": "a6762b7aaf35069763369d92bc5124aa79737c100a3fd87c5b1cdfa9d632d9af",
  "guards_sha256": "11a64c23b61637d89d626a952d52b42453864a7795afb8b14cc93c3bffdd8c7f",
  "gates_sha256": "ac0fda84c812d424bcf3a32a27cc4fc2e88ebe70b59a6f806b4725336216d6bf",
  "taken_at": "2026-11-18T17:20:34"
-=======
-{
- "sha256": "d6f44ae7e1c3f2cafc498286481aa8a9aa8becd5accf75d187e914aadea359e2",
- "guards_sha256": "11a64c23b61637d89d626a952d52b42453864a7795afb8b14cc93c3bffdd8c7f",
- "gates_sha256": "cd5a2287f7c87bf3e874283a98007b44745d6eca45df5c7d8d680f6d4a19f570",
- "taken_at": "2026-11-18T16:41:57"
->>>>>>> e041e7adb2d33ddc921d152502f38da1ed65e4ba
 }
