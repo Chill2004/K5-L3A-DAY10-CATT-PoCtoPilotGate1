@@ -275,9 +275,19 @@ python3 -m unittest discover -s tests
 
 | # | Cổng (hàm và nhánh, ví dụ `write_gate` khi `tool == "issue_refund"`) | Ứng với dòng nào ở B6 / B4 | Chặn điều gì, dựa vào nguồn sự thật nào | Mã lần chạy `base · after` | Ca đang đúng nào bị hỏng? (phải là "không") |
 |---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
+| 1 | `pre_guard`: ghim chính sách đang có hiệu lực theo `as_of` | Đề xuất rủi ro chính sách hết hạn; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tra ngày hiệu lực bằng `H.effective_policy`, không phụ thuộc cờ `index_active`; thiếu chính sách thì chuyển người | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
+| 2 | `write_gate`, nhánh `issue_refund`: kiểm chứng quyền lợi, phê duyệt và sổ cái | Đề xuất rủi ro hoàn sai/ghi lặp; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tính tiền từ đúng kiện hàng, tracking DB và chính sách; sửa tiền và bên trả về quyền lợi chính sách; kiểm tra phê duyệt đúng ticket/đơn/khách, còn hạn, đủ tiền và chưa dùng; chặn khoản hoàn lặp theo sổ cái | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
+| 3 | `write_gate`, nhánh `file_carrier_fault`: kiểm chứng căn cứ và đối tượng quy lỗi | Đề xuất rủi ro ghi lỗi oan hãng; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Dùng `H.carrier_at_fault` trên tracking của kiện hàng được chọn; không đủ căn cứ thì bỏ lệnh; đủ căn cứ thì sửa đúng kiện/hãng/tài xế/độ trễ, chặn bản ghi trùng | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
+
+**Bằng chứng kiểm tra cổng số 2:** Trace `T-002@55`, suite `base`, stage `after` do Cường chạy: tracking DB ghi nhận trễ 2 ngày, agent dùng lời khách khai 5 ngày và đề xuất hoàn 20.000đ. Cổng `issue_refund` trả về `deny` vì không đủ điều kiện theo tracking DB và chính sách. Kết quả `denied`, hoàn 0đ, sổ cái, lỗi hãng và gửi hãng đều trống, khớp nhãn — `ĐẠT`. Nhánh cổng `file_carrier_fault` chưa được gọi trong ca này vì luồng dừng sau khi khoản hoàn bị chặn. Trace này chưa xác minh hồi quy toàn bộ bộ nền và không thay thế mã lần chạy `eval`.
+
+**Kiểm tra công khai:** Cường đã chạy `python -m unittest discover -s tests`, kết quả 13 tests, `OK`. Đánh giá toàn bộ bộ nền đang chờ bản tiêu chí đã ký được tích hợp; các cột mã lần chạy và kết luận hồi quy sẽ bổ sung sau khi chạy đánh giá thành công.
+
+**Giả định và giới hạn cần nhóm xác nhận:**
+
+- Cổng 1 phụ thuộc ngày hiệu lực và nội dung chính sách trong DB được ghi đúng.
+- Cổng 2 hiện chặn mọi khoản hoàn tiếp theo khi đơn đã có bản ghi hoàn trong sổ cái. Cần xác nhận nghiệp vụ có cho phép hoàn bổ sung hoặc hoàn theo từng kiện không.
+- Cổng 3 phụ thuộc tracking ghi đúng nguyên nhân và việc xác định đúng kiện hàng của ticket.
 
 ### B7.2 · Câu 2.7 · Hai bước tránh rò rỉ dữ liệu
 
