@@ -391,6 +391,15 @@ Lượng ticket có thể dồn gấp ba trong một giờ (ngày sale, sau bão
 | Ngưỡng nào thì **thu hẹp** phạm vi (khoá `business.pilot_scope`) hoặc **tắt** một thao tác ghi (`config/switches.json`)? Ai quyết? | Có ca chờ quá 60 phút hoặc từ 1 ca bị ùn thì thu hẹp `business.pilot_scope`; có 1 lỗi ghi oan hoặc lộ dữ liệu thì tắt thao tác ghi đó trong `config/switches.json`; NV-TUNG quyết |
 | Thêm người thì chi phí mỗi ticket và ROI thay đổi thế nào (đọc report)? | Mỗi người trực thêm tốn 30.000đ mỗi ca (`ops_facts`), nên chi phí mỗi ticket và ROI giảm; con số cụ thể đọc ở report sau khi đổi `reviewers_on_shift` rồi chạy lại `lab10.eval` |
 
+**Bổ sung sau thẻ S4 (viết thêm, bút khác màu)**
+
+- Ngày 11.11 có 41 ticket; riêng phút 240–298 dồn 30 ticket. Mốc base: 1 người trực (6 ca/giờ), 15 ca/ngày vào hàng chờ, chờ lâu nhất 78 phút, 4 ca bị ùn.
+- Giờ cao điểm: 30 ticket × tỉ lệ chuyển người 0,366 ≈ 11 ca chuyển người trong một giờ (ước tính từ report). Con số này sát mức 12 ca/giờ của 2 người, nên 2 người là mức tối thiểu cho ngày sale, 3 người là mức dự phòng.
+- Khi đổi lên 2 người (mốc grade): chờ trung bình 37,9 → 7,5 phút, chờ lâu nhất 78 → 13 phút, 0 ca ùn; đổi lại chi phí mỗi ticket 4.980đ → 5.708đ và ROI 0,85 → 0,75.
+- Ngưỡng gọi thêm người: hàng chờ từ 6 ca hoặc có ca chờ trên 30 phút → NV-HANH gọi người thứ ba. Ngưỡng thu hẹp: có ca chờ trên 60 phút sau khi đã đủ 3 người → thu hẹp phạm vi, NV-TUNG quyết.
+- Ngưỡng tiền: tổng hoàn tự động trong ngày đạt 300.000đ (ngân sách Finance chốt cho 11.11) thì mọi khoản hoàn tiếp theo phải có người duyệt; NV-OANH được báo khi đạt 240.000đ (80%).
+- Khi LLM lỗi `policy_check` quá 10 phút: không tự ghi lỗi hãng, chuyển người duyệt; NV-TUNG quyết tắt `file_carrier_fault`.
+
 ---
 
 <a id="b8"></a>

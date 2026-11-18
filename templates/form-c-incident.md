@@ -231,13 +231,13 @@ Mở lại Phiếu B mục B3. Ghi ở đây những dòng đổi so với vòng
 
 *Mục riêng, không ghi đè HAZOP vòng 1 ở Phiếu B mục B4. Năm guideword và nghĩa của chúng: xem Phiếu B mục B4.*
 
-Tool chọn phân tích: `________________`
+Tool chọn phân tích: `issue_refund` và `file_carrier_fault` khi LLM `policy_check` lỗi; cộng hai thành phần không phải phần mềm: người duyệt và ngân sách hoàn trong ngày
 
 | Tham số / dòng dữ liệu | Guideword (WRONG / INVALID / INCOMPLETE / PERTURBED / INCAPABLE) | Lệch cụ thể (mã ticket, trường dữ liệu của thẻ) | Hậu quả, cho ai | Hiện có gì ngăn? | Gate đề xuất + tầng |
 |---|---|---|---|---|---|
-| | | | | | |
-| | | | | | |
-| | | | | | |
+| Bước `policy_check` của LLM (nhà cung cấp trả 429, `llm_faults.rate_pct` = 60) | INCAPABLE | `S4-08@11`: hai lần 429 liên tiếp, `llm_fallback` chế độ `fail_open`, `proposal.basis` = `fail_open`, `do_fault` = true, hãng VNX bị ghi lỗi (đơn O-2408, nguyên nhân thật là `MERCHANT_HANDOVER`). `S4-08@22`: chỉ một lần 429 rồi dùng lại được, ĐẠT | Hãng VNX bị ghi lỗi oan (bên thứ ba, có thể bị phạt và tính strike); LogiX hoàn tiền mà không qua kiểm tra chính sách | Cổng vòng 1 của Cường ép `basis=policy` và chỉ ghi lỗi khi tracking đúng là lỗi hãng; chưa có luật "LLM lỗi thì chuyển người" | `write_gate`: khi trace có `llm_fallback`/`fail_open` thì không tự ghi lỗi hãng, chuyển người duyệt. Tầng chặn |
+| Ngân sách hoàn tự động trong ngày (`ops_limits.daily_auto_refund_budget_vnd` = 300.000đ, riêng ngày 11.11) | INCAPABLE | Phút 240–298 có 30 ticket (`S4-07`…`S4-36`). Report base: tổng hoàn tự động 466.000đ > 300.000đ; `business.daily_refund_cap_vnd` của bàn đang để `null`; cổng hiện tại sau khi chạy lại vẫn 422.000đ | Finance (NV-OANH) mất kiểm soát ngân sách đợt sale, phần vượt không có ai duyệt | Chưa có: không có trần tổng ngày trong guard lẫn config | Đặt `business.daily_refund_cap_vnd` = 300000 và `write_gate` chuyển người khi `ctx.tools.auto_refund_today_vnd()` + số tiền sắp hoàn > trần. Tầng giới hạn thiệt hại |
+| Hàng chờ người duyệt (`ops_facts`: 6 ca/giờ/người) | INCAPABLE | Mốc base: 1 người trực, 15 ca/ngày vào hàng chờ, chờ lâu nhất 78 phút, 4 ca bị ùn (hạn 60 phút); `S4-07` (mỹ phẩm bể nắp, phút 240) là ca buộc chuyển người | Khách hàng vỡ/thất lạc chờ quá 60 phút; chị Hạnh (NV-HANH) quá tải | Chỉ có số người trực trong config (mốc grade: 2 người thì chờ lâu nhất 13 phút, 0 ca ùn) | Số người trực + ngưỡng gọi thêm người (Runbook B7.6) + chỉ số hàng chờ trong `monitors.py`. Tầng vận hành |
 
 Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chưa thấy trên trace** lúc viết.
 
@@ -255,9 +255,9 @@ Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
-Giả định (thứ nằm NGOÀI phần mềm): …
+Giả định (thứ nằm NGOÀI phần mềm): giờ cao điểm vẫn có đủ người duyệt rảnh để nhận ca trợ lý chuyển sang trong 60 phút, và nhà cung cấp LLM vẫn trả lời ở bước `policy_check` như ngày thường. Thiết kế vòng 1 của bàn đặt sẵn 2 người trực và coi LLM luôn trả lời.
 
-Vì sao có thể sai: …
+Vì sao có thể sai: thẻ S4 cho thấy đêm 11.11 chỉ một mình chị Hạnh trực, ticket gấp ba dồn vào một giờ sau 20h (30 ticket trong phút 240–298), và LLM trả 429 khoảng 60% ở `policy_check` (`S4-08@11`). Khi đó hàng chờ có ca chờ 78 phút và trợ lý rơi về `fail_open`.
 
 ---
 
