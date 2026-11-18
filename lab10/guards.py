@@ -68,6 +68,17 @@ def write_gate(ctx, action):
         if amount <= 0:
             return Verdict.deny("Tracking DB và chính sách không cho phép hoàn tiền")
 
+        # Vòng 2 (thẻ S4): LLM kiểm chính sách lỗi (429) thì không tự hoàn, chuyển người duyệt.
+        if any(e.get("type") == "llm_fallback" for e in ctx.events):
+            return Verdict.escalate("LLM kiểm chính sách lỗi, chuyển người duyệt thay vì tự hoàn")
+
+        # Vòng 2 (thẻ S4): trần hoàn tự động trong ngày; vượt thì cần người duyệt.
+        cap = (ctx.gates.get("business", {}) or {}).get("daily_refund_cap_vnd") \
+            or ctx.tools.ops_limits().get("daily_auto_refund_budget_vnd")
+        if cap is not None and not action.get("approval_id") \
+                and ctx.tools.auto_refund_today_vnd() + amount > cap:
+            return Verdict.escalate("Tổng hoàn tự động trong ngày sẽ vượt trần, cần người duyệt")
+
         approval_id = action.get("approval_id")
         if amount > policy["auto_limit_vnd"] or approval_id:
             approvals = ctx.tools.lookup_approvals(approval_id=approval_id)
