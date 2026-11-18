@@ -1,9 +1,14 @@
 {
   "team": "K5-L3A-DAY10-CATT-PoCtoPilotGate1",
-  "members": [],
+  "members": [
+    "NguyenHuuCuong-2A202603355",
+    "HoangNgocMinhTri-2A202603379",
+    "ChuThiAnh-2A202603360",
+    "NguyenAnhTu-2A202603434"
+  ],
   "incident": "S4",
-  "decision_v1": "",
-  "decision_v2": "",
+  "decision_v1": "Thu hẹp",
+  "decision_v2": "Thu hẹp",
   "three_lines": {
     "environment_assumption": "Thiết kế dựa vào giả định giờ cao điểm vẫn có đủ người duyệt rảnh nhận ca trong 60 phút và nhà cung cấp LLM vẫn trả lời ở bước policy_check; thẻ S4 cho thấy đêm đó chỉ có một người trực và LLM trả 429 khoảng 60%.",
     "reduce_or_prevent": "Chỉ GIẢM khả năng, chưa NGĂN hẳn: cổng ghi lỗi hãng đối chiếu tracking DB và cổng pháp lý chặn dữ liệu cá nhân chặn được các ca ghi oan trong bộ thử, nhưng trần tiền và việc chuyển người vẫn phụ thuộc người duyệt có mặt và dữ liệu nguyên nhân trễ trong tracking đúng; nếu hai thứ đó sai thì tác hại vẫn xảy ra.",

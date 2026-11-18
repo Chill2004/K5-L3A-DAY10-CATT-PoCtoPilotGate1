@@ -256,11 +256,13 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
 |---|---|---|---|
-| | Kỹ thuật | | |
-| | Kinh doanh | | |
-| | Con người và vận hành | | |
-| | Pháp lý | | |
-| | | | |
+| Trợ lý lấy số ngày trễ từ lời khách thay vì tracking DB nên ghi lỗi oan cho hãng | Kỹ thuật | Có: trace `T-002@55` (DB 2 ngày, khách nói 5) | Code: `write_gate` nhánh `file_carrier_fault` |
+| Hoàn tự động trong một ngày vượt ngân sách vì chưa có trần tổng ngày; kho chưa xác định mã có chi phí cao hơn làm tay | Kinh doanh | Có: khối kinh doanh của report (`daily_refund_cap_vnd`, kho `?`) | Config: `business.daily_refund_cap_vnd`; risk register |
+| Chỉ một người duyệt (6 ca/giờ) nên ca chuyển người chờ quá 60 phút khi ticket tăng | Con người và vận hành | Có: HAZOP B4 dòng INCAPABLE, `ops_facts` | Config: `operations.reviewers_on_shift`; Runbook B7.6 |
+| Ghi chú của khách và số liên hệ người nhận bị gửi sang hãng; hãng bị ghi lỗi khi chưa có nguyên nhân | Pháp lý | Có: trace payload `notify_carrier`, HAZOP B4 | Config: `legal.pii_fields_blocked_to_third_party`, `carrier_fault_requires_recorded_cause` |
+| Khi LLM không trả lời, trợ lý tự quyết thay vì chuyển người | Kỹ thuật | Chưa có trace ở vòng 1; mới nêu ở checklist nhóm 5 | Chưa có cổng; thêm ở vòng 2 |
+
+*Ghi chú trung thực: mục B6 được điền bổ sung sau buổi, dựa trên bằng chứng đã có ở B2, B4, B5, không phải kết quả phiên viết im lặng 2 phút ở vòng 1.*
 
 ---
 
