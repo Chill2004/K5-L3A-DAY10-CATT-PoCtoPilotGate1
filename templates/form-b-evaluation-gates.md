@@ -128,28 +128,25 @@ Gợi ý: mở `data/world.json` phần `policies`, `orders[].parcels`, `ops_lim
 
 | Mục | Điền cho trợ lý hoàn tiền |
 |---|---|
-| Người dùng | Khách hàng gửi yêu cầu qua ticket; CSKH theo dõi kết quả và NV-HANH duyệt các ca được chuyển người. |
+| Người dùng | Khách hàng gửi yêu cầu qua ticket; nhân viên CSKH theo dõi kết quả và NV-HANH duyệt các ca được chuyển người. |
 | Việc người dùng cần làm xong | Xác định theo tracking và chính sách hiện hành liệu đơn giao trễ có được hoàn hay không; trả lời khách, hoàn đúng khoản và chỉ ghi lỗi cho đúng hãng khi có căn cứ. |
-| Đầu ra của hệ thống (kể cả các lệnh ghi) | |
-| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | |
-| Trường then chốt quyết định tiền và lỗi hãng | |
-| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | |
-| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | |
-| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | |
-| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | |
+| Đầu ra của hệ thống (kể cả các lệnh ghi) | Trạng thái và phản hồi cho khách; `issue_refund` ghi sổ hoàn, `file_carrier_fault` ghi lỗi hãng, `notify_carrier` gửi thông tin cho hãng; ca thiếu căn cứ được chuyển vào hàng chờ người duyệt. |
+| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | `tickets`, `customers`, `orders[].parcels`, `policies`, `approvals`, `ledger`, `faults`, `outbound`, `ops_limits`, `ops_facts`, `staff`. |
+| Trường then chốt quyết định tiền và lỗi hãng | `order_id`, `customer_id`, `parcel_id`, `carrier_id`, `promised_date`, `delivered_date`, `status`, `delay_cause`; `policy_id`/phiên bản và ngày hiệu lực; `approval_id`, trạng thái, hạn mức; lịch sử `ledger`. |
+| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | Trong lab, đây là dữ liệu mock. Khi triển khai thật, OMS/tracking phải là nguồn về đơn và sự kiện giao; chính sách có phiên bản và ngày hiệu lực do Finance/đơn vị chính sách quản lý; phê duyệt lấy từ hệ thống duyệt; `ledger` là căn cứ đối soát tiền đã hoàn. `orders[].refund_status` không thay thế việc đối soát `ledger`. Lời khách trong ticket không phải nguồn sự thật về số ngày trễ hay nguyên nhân. Chủ sở hữu dữ liệu và SLA đồng bộ production cần được xác nhận trước pilot. |
+| Định dạng cần để ý (ngày, trường được phép để trống, đơn nhiều kiện) | Ngày theo `YYYY-MM-DD`; `delivered_date` hoặc `delay_cause` có thể `null` khi chưa có dữ liệu. Một đơn có thể có nhiều kiện nên ghép theo `parcel_id`, không mặc định lấy `parcels[0]`. Tiền là số nguyên VND; cần giữ đúng mã đơn, kiện và hãng. |
+| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | Máy quét có thể cập nhật trễ hoặc thiếu; nguyên nhân bàn giao có thể bị nhập tay sai; chính sách có thể đổi phiên bản/ngày hiệu lực; ngày sale có thể làm ticket dồn cục bộ và hàng chờ tăng. |
+| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | Ghép theo `parcel_id` rồi đối chiếu `promised_date` với sự kiện giao trong tracking; không dùng số ngày khách tự khai. Nếu chưa giao thì áp dụng quy tắc tính theo mốc `as_of` của lab; nếu tracking thiếu hoặc mâu thuẫn thì chuyển người duyệt, không tự kết luận. |
 
-**Tóm lại (điền vào chỗ trống):**
-Trợ lý dùng `__________`, `__________`, `__________` để giúp `__________` làm được `__________`.
-Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `__________`, `__________`.
-Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: `__________`. Dấu hiệu nhìn thấy sớm nhất: `__________`.
+**Tóm lại:**
+Trợ lý dùng `orders[].parcels`, `policies`, `approvals` để giúp khách hàng và CSKH xử lý yêu cầu hoàn do giao trễ.
+Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `delivered_date`, `delay_cause`.
+Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: tracking cập nhật trễ/thiếu, nhập tay sai nguyên nhân và ticket dồn vào giờ sale. Dấu hiệu nhìn thấy sớm nhất: thiếu hoặc mâu thuẫn giữa tracking và ticket, cùng thời gian chờ hàng đợi tăng.
 
-**Ví dụ drift trong 3 tháng tới** (lấy từ dòng "thế giới thật làm dữ liệu lệch"): cái gì đổi `____` · đổi ngày nào `____` ·
-trường nào cho thấy `____` · con số nào của Bản tiêu chí bị ảnh hưởng `____`.
-Đây là đầu vào đổi hay quan hệ vào–ra đổi? Chỉ số nào sẽ phát hiện? `__________`
+**Ví dụ drift trong 3 tháng tới** (tình huống giả định; ngày thực tế cần Finance xác nhận): chính sách hoàn đổi phiên bản · ngày giả định `2027-02-01` · trường báo hiệu `policy_id`/`effective_from` · ngưỡng bị ảnh hưởng `wrongful_refund_vnd` và `pass_rate`.
+Đây là quan hệ đầu vào–đầu ra đổi: cùng số ngày trễ nhưng quyền lợi/tiền hoàn có thể khác theo phiên bản chính sách. Phát hiện bằng kiểm tra phiên bản đang hiệu lực và theo dõi `wrongful_refund_vnd` theo phiên bản.
 
-**Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn
-sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
-
+**Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
 ---
 
 <a id="b4"></a>
@@ -327,12 +324,12 @@ Giữ hai ticket này cho phần demo.
 
 Mỗi con số kèm một câu lý do, lấy từ `data/world.json` → `ops_limits`, `ops_facts`.
 
-| Khoá | Giá trị bàn đặt | Lý do (một câu, có số) |
+| Khoá | Giá trị bàn đặt | Lý do |
 |---|---|---|
-| `business.daily_refund_cap_vnd` | | |
-| `business.cost_budget_per_ticket_vnd` | | |
-| `business.pilot_scope` (all / warehouse / percent) | | |
-| `business.roi_min` | | |
+| `business.daily_refund_cap_vnd` | 2.000.000 | Ngân sách hoàn tự động/ngày của Finance trong ops_limits là 2.000.000đ. |
+| `business.cost_budget_per_ticket_vnd` | 1.500 | Trần tiền LLM mỗi ticket trong ops_limits là 1.500đ. |
+| `business.pilot_scope` | all, 100% | Giữ phạm vi bộ nền trên toàn bộ kho; không thu hẹp để che lỗi phân khúc. |
+| `business.roi_min` | 0 | Khớp ROI tối thiểu đã ký; ROI không được âm. |
 
 ### B7.5 · Câu 2.10 · Cổng con người, vận hành, pháp lý + Runbook phần 1–3
 
