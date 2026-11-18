@@ -81,6 +81,16 @@ def write_gate(ctx, action):
             if approval is None or ctx.tools.ledger_rows(approval_id=approval_id):
                 return Verdict.escalate("Khoản hoàn cần phê duyệt còn hiệu lực, đúng đối tượng và chưa dùng")
 
+        # Vòng 2 (S4): trần tổng hoàn TỰ ĐỘNG trong ngày. Lấy mức chặt hơn giữa ngân sách Finance của chính
+        # ngày đó (ops_limits, ví dụ 11.11 riêng 300.000đ) và trần bàn đặt trong config. Phần vượt chuyển người duyệt.
+        if not approval_id:
+            caps = [c for c in ((ctx.tools.ops_limits() or {}).get("daily_auto_refund_budget_vnd"),
+                                (ctx.gates or {}).get("business", {}).get("daily_refund_cap_vnd")) if c is not None]
+            spent = ctx.tools.auto_refund_today_vnd()
+            if caps and spent + amount > min(caps):
+                ctx.log("daily_refund_budget", cap=min(caps), spent=spent, asked=amount)
+                return Verdict.escalate("Vượt ngân sách hoàn tự động trong ngày, chuyển người duyệt")
+
         if action.get("amount_vnd") != amount or action.get("payer") != "LOGIX" or action.get("basis") != "policy":
             return Verdict.modify("Tính lại quyền lợi từ tracking DB và chính sách", amount_vnd=amount,
                                   payer="LOGIX", basis="policy")
