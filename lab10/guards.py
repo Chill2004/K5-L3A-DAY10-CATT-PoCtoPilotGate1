@@ -68,6 +68,17 @@ def write_gate(ctx, action):
         if amount <= 0:
             return Verdict.deny("Tracking DB và chính sách không cho phép hoàn tiền")
 
+        # Vòng 2 (thẻ S4): LLM kiểm chính sách lỗi (429) thì không tự hoàn, chuyển người duyệt.
+        if any(e.get("type") == "llm_fallback" for e in ctx.events):
+            return Verdict.escalate("LLM kiểm chính sách lỗi, chuyển người duyệt thay vì tự hoàn")
+
+        # Vòng 2 (thẻ S4): trần hoàn tự động trong ngày; vượt thì cần người duyệt.
+        cap = (ctx.gates.get("business", {}) or {}).get("daily_refund_cap_vnd") \
+            or ctx.tools.ops_limits().get("daily_auto_refund_budget_vnd")
+        if cap is not None and not action.get("approval_id") \
+                and ctx.tools.auto_refund_today_vnd() + amount > cap:
+            return Verdict.escalate("Tổng hoàn tự động trong ngày sẽ vượt trần, cần người duyệt")
+
         approval_id = action.get("approval_id")
         if amount > policy["auto_limit_vnd"] or approval_id:
             approvals = ctx.tools.lookup_approvals(approval_id=approval_id)
@@ -80,16 +91,6 @@ def write_gate(ctx, action):
                              and item.get("max_vnd", 0) >= amount), None)
             if approval is None or ctx.tools.ledger_rows(approval_id=approval_id):
                 return Verdict.escalate("Khoản hoàn cần phê duyệt còn hiệu lực, đúng đối tượng và chưa dùng")
-
-        # Vòng 2 (S4): trần tổng hoàn TỰ ĐỘNG trong ngày. Lấy mức chặt hơn giữa ngân sách Finance của chính
-        # ngày đó (ops_limits, ví dụ 11.11 riêng 300.000đ) và trần bàn đặt trong config. Phần vượt chuyển người duyệt.
-        if not approval_id:
-            caps = [c for c in ((ctx.tools.ops_limits() or {}).get("daily_auto_refund_budget_vnd"),
-                                (ctx.gates or {}).get("business", {}).get("daily_refund_cap_vnd")) if c is not None]
-            spent = ctx.tools.auto_refund_today_vnd()
-            if caps and spent + amount > min(caps):
-                ctx.log("daily_refund_budget", cap=min(caps), spent=spent, asked=amount)
-                return Verdict.escalate("Vượt ngân sách hoàn tự động trong ngày, chuyển người duyệt")
 
         if action.get("amount_vnd") != amount or action.get("payer") != "LOGIX" or action.get("basis") != "policy":
             return Verdict.modify("Tính lại quyền lợi từ tracking DB và chính sách", amount_vnd=amount,

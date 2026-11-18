@@ -122,35 +122,31 @@ tín hiệu: đếm sự kiện `model_override` mỗi ngày.
 
 ## B3 · Câu 2.3 · Bản đồ dữ liệu của trợ lý và ví dụ drift
 
-**Cách làm:** đi từ người dùng và việc họ cần làm, tới đầu ra của hệ thống, rồi mới hỏi hệ thống cần dữ liệu
-gì, định dạng ra sao, và **thế giới thật làm dữ liệu đó lệch đi thế nào**; cuối cùng tóm lại trong vài câu.
+**Cách làm:** đi từ người dùng và việc họ cần làm, tới đầu ra của hệ thống, rồi mới hỏi hệ thống cần dữ liệu gì, định dạng ra sao, và **thế giới thật làm dữ liệu đó lệch đi thế nào**; cuối cùng tóm lại trong vài câu.
 Trợ lý LogiX không huấn luyện gì trong lab này, nên ta hỏi về "dữ liệu trợ lý đọc lúc chạy / trường then chốt / nguồn sự thật".
 Gợi ý: mở `data/world.json` phần `policies`, `orders[].parcels`, `ops_limits`, `ops_facts`.
 
 | Mục | Điền cho trợ lý hoàn tiền |
 |---|---|
-| Người dùng | |
-| Việc người dùng cần làm xong | |
-| Đầu ra của hệ thống (kể cả các lệnh ghi) | |
-| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | |
-| Trường then chốt quyết định tiền và lỗi hãng | |
-| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | |
-| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | |
-| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | |
-| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | |
+| Người dùng | Khách hàng gửi yêu cầu qua ticket; nhân viên CSKH theo dõi kết quả và NV-HANH duyệt các ca được chuyển người. |
+| Việc người dùng cần làm xong | Xác định theo tracking và chính sách hiện hành liệu đơn giao trễ có được hoàn hay không; trả lời khách, hoàn đúng khoản và chỉ ghi lỗi cho đúng hãng khi có căn cứ. |
+| Đầu ra của hệ thống (kể cả các lệnh ghi) | Trạng thái và phản hồi cho khách; `issue_refund` ghi sổ hoàn, `file_carrier_fault` ghi lỗi hãng, `notify_carrier` gửi thông tin cho hãng; ca thiếu căn cứ được chuyển vào hàng chờ người duyệt. |
+| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | `tickets`, `customers`, `orders[].parcels`, `policies`, `approvals`, `ledger`, `faults`, `outbound`, `ops_limits`, `ops_facts`, `staff`. |
+| Trường then chốt quyết định tiền và lỗi hãng | `order_id`, `customer_id`, `parcel_id`, `carrier_id`, `promised_date`, `delivered_date`, `status`, `delay_cause`; `policy_id`/phiên bản và ngày hiệu lực; `approval_id`, trạng thái, hạn mức; lịch sử `ledger`. |
+| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | Trong lab, đây là dữ liệu mock. Khi triển khai thật, OMS/tracking phải là nguồn về đơn và sự kiện giao; chính sách có phiên bản và ngày hiệu lực do Finance/đơn vị chính sách quản lý; phê duyệt lấy từ hệ thống duyệt; `ledger` là căn cứ đối soát tiền đã hoàn. `orders[].refund_status` không thay thế việc đối soát `ledger`. Lời khách trong ticket không phải nguồn sự thật về số ngày trễ hay nguyên nhân. Chủ sở hữu dữ liệu và SLA đồng bộ production cần được xác nhận trước pilot. |
+| Định dạng cần để ý (ngày, trường được phép để trống, đơn nhiều kiện) | Ngày theo `YYYY-MM-DD`; `delivered_date` hoặc `delay_cause` có thể `null` khi chưa có dữ liệu. Một đơn có thể có nhiều kiện nên ghép theo `parcel_id`, không mặc định lấy `parcels[0]`. Tiền là số nguyên VND; cần giữ đúng mã đơn, kiện và hãng. |
+| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | Máy quét có thể cập nhật trễ hoặc thiếu; nguyên nhân bàn giao có thể bị nhập tay sai; chính sách có thể đổi phiên bản/ngày hiệu lực; ngày sale có thể làm ticket dồn cục bộ và hàng chờ tăng. |
+| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | Ghép theo `parcel_id` rồi đối chiếu `promised_date` với sự kiện giao trong tracking; không dùng số ngày khách tự khai. Nếu chưa giao thì áp dụng quy tắc tính theo mốc `as_of` của lab; nếu tracking thiếu hoặc mâu thuẫn thì chuyển người duyệt, không tự kết luận. |
 
-**Tóm lại (điền vào chỗ trống):**
-Trợ lý dùng `__________`, `__________`, `__________` để giúp `__________` làm được `__________`.
-Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `__________`, `__________`.
-Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: `__________`. Dấu hiệu nhìn thấy sớm nhất: `__________`.
+**Tóm lại:**
+Trợ lý dùng `orders[].parcels`, `policies`, `approvals` để giúp khách hàng và CSKH xử lý yêu cầu hoàn do giao trễ.
+Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `delivered_date`, `delay_cause`.
+Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: tracking cập nhật trễ/thiếu, nhập tay sai nguyên nhân và ticket dồn vào giờ sale. Dấu hiệu nhìn thấy sớm nhất: thiếu hoặc mâu thuẫn giữa tracking và ticket, cùng thời gian chờ hàng đợi tăng.
 
-**Ví dụ drift trong 3 tháng tới** (lấy từ dòng "thế giới thật làm dữ liệu lệch"): cái gì đổi `____` · đổi ngày nào `____` ·
-trường nào cho thấy `____` · con số nào của Bản tiêu chí bị ảnh hưởng `____`.
-Đây là đầu vào đổi hay quan hệ vào–ra đổi? Chỉ số nào sẽ phát hiện? `__________`
+**Ví dụ drift trong 3 tháng tới** (tình huống giả định; ngày thực tế cần Finance xác nhận): chính sách hoàn đổi phiên bản · ngày giả định `2027-02-01` · trường báo hiệu `policy_id`/`effective_from` · ngưỡng bị ảnh hưởng `wrongful_refund_vnd` và `pass_rate`.
+Đây là quan hệ đầu vào–đầu ra đổi: cùng số ngày trễ nhưng quyền lợi/tiền hoàn có thể khác theo phiên bản chính sách. Phát hiện bằng kiểm tra phiên bản đang hiệu lực và theo dõi `wrongful_refund_vnd` theo phiên bản.
 
-**Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn
-sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
-
+**Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
 ---
 
 <a id="b4"></a>
@@ -260,11 +256,13 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
 |---|---|---|---|
-| | Kỹ thuật | | |
-| | Kinh doanh | | |
-| | Con người và vận hành | | |
-| | Pháp lý | | |
-| | | | |
+| Trợ lý lấy số ngày trễ từ lời khách thay vì tracking DB nên ghi lỗi oan cho hãng | Kỹ thuật | Có: trace `T-002@55` (DB 2 ngày, khách nói 5) | Code: `write_gate` nhánh `file_carrier_fault` |
+| Hoàn tự động trong một ngày vượt ngân sách vì chưa có trần tổng ngày; kho chưa xác định mã có chi phí cao hơn làm tay | Kinh doanh | Có: khối kinh doanh của report (`daily_refund_cap_vnd`, kho `?`) | Config: `business.daily_refund_cap_vnd`; risk register |
+| Chỉ một người duyệt (6 ca/giờ) nên ca chuyển người chờ quá 60 phút khi ticket tăng | Con người và vận hành | Có: HAZOP B4 dòng INCAPABLE, `ops_facts` | Config: `operations.reviewers_on_shift`; Runbook B7.6 |
+| Ghi chú của khách và số liên hệ người nhận bị gửi sang hãng; hãng bị ghi lỗi khi chưa có nguyên nhân | Pháp lý | Có: trace payload `notify_carrier`, HAZOP B4 | Config: `legal.pii_fields_blocked_to_third_party`, `carrier_fault_requires_recorded_cause` |
+| Khi LLM không trả lời, trợ lý tự quyết thay vì chuyển người | Kỹ thuật | Chưa có trace ở vòng 1; mới nêu ở checklist nhóm 5 | Chưa có cổng; thêm ở vòng 2 |
+
+*Ghi chú trung thực: mục B6 được điền bổ sung sau buổi, dựa trên bằng chứng đã có ở B2, B4, B5, không phải kết quả phiên viết im lặng 2 phút ở vòng 1.*
 
 ---
 
@@ -328,12 +326,12 @@ Giữ hai ticket này cho phần demo.
 
 Mỗi con số kèm một câu lý do, lấy từ `data/world.json` → `ops_limits`, `ops_facts`.
 
-| Khoá | Giá trị bàn đặt | Lý do (một câu, có số) |
+| Khoá | Giá trị bàn đặt | Lý do |
 |---|---|---|
-| `business.daily_refund_cap_vnd` | | |
-| `business.cost_budget_per_ticket_vnd` | | |
-| `business.pilot_scope` (all / warehouse / percent) | | |
-| `business.roi_min` | | |
+| `business.daily_refund_cap_vnd` | 2.000.000 | Ngân sách hoàn tự động/ngày của Finance trong ops_limits là 2.000.000đ. |
+| `business.cost_budget_per_ticket_vnd` | 1.500 | Trần tiền LLM mỗi ticket trong ops_limits là 1.500đ. |
+| `business.pilot_scope` | all, 100% | Giữ phạm vi bộ nền trên toàn bộ kho; không thu hẹp để che lỗi phân khúc. |
+| `business.roi_min` | 0 | Khớp ROI tối thiểu đã ký; ROI không được âm. |
 
 ### B7.5 · Câu 2.10 · Cổng con người, vận hành, pháp lý + Runbook phần 1–3
 
@@ -423,22 +421,22 @@ bao nhiêu thời gian? (3) Có phần nào của dự án không nên làm ti�
 
 | | **v1** (phút 105–115, TRƯỚC khi nhận thẻ sự cố) |
 |---|---|
-| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | |
-| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | |
-| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: ________ · bộ nền với cổng vòng 1 (prepared): ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
-| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
-| Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
-| Khớp dòng nào trong `decision_rule` đã ký? | |
-| Nếu Thu hẹp: cắt phần nào, vì sao | |
-| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | |
-| Nếu Dừng: bài học ghi lại | |
-| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | |
-| Ngày quyết định lại (trừ khi Dừng) | |
-| PIC ký | |
+| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | `4b87d77` (`Sign acceptance criteria`) |
+| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | `a6762b7a` |
+| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: `R-base-before-20261118-162921-7b0ef9` · bộ nền với cổng vòng 1 (prepared): `R-base-prepared-20261118-172041-a04730` |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Report prepared không có vượt trần tổng thể: pass_rate 1.0, pass_k 1.0; hoàn sai, lỗi hãng oan, lộ PII và queue_stuck đều 0; chi phí 5.565đ/ticket, ROI 0.8. Tuy nhiên, phân khúc kho `?` có chi phí 10.359đ/ticket, cao hơn chi phí làm tay 10.000đ. |
+| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | Kho `?` (5 trials): 10.359đ/ticket, cao hơn làm tay; không có lỗi an toàn. Có: không nên tự động xử lý ticket chưa xác định được kho cho tới khi phân loại được. Các kho CT, DN, HCM, HN đều dưới 10.000đ/ticket trong report. |
+| Quyết định (khoanh một) | **Thu hẹp** |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-base-prepared-20261118-172041-a04730`: pass_rate 1.0 (ngưỡng ≥ 0.9), pass_k 1.0 (ngưỡng ≥ 0.8); các ngưỡng an toàn đều đạt. |
+| Bằng chứng 2 | Cùng report: hoàn sai 0đ, lỗi hãng oan 0, lộ PII 0, queue_stuck 0; tổng hoàn tự động 155.000đ, thấp hơn ngân sách 2.000.000đ. |
+| Bằng chứng 3 | Chi phí trung bình 5.565đ/ticket và ROI 0.8 đạt ngưỡng đã ký; riêng kho `?` có 5 trials, 10.359đ/ticket, vượt mức làm tay 10.000đ. |
+| Khớp dòng nào trong `decision_rule` đã ký? | “Thu hẹp”: giữ phân khúc có bằng chứng đạt, ghi rõ ticket bị loại và đường chuyển người; phù hợp thêm với ngưỡng đỏ chi phí theo phân khúc đã ghi ở B7.5. |
+| Nếu Thu hẹp: cắt phần nào, vì sao | Tạm không tự động xử lý ticket chưa xác định được kho (nhóm `?`); chuyển các ticket đó sang quy trình làm tay. Giữ các kho CT, DN, HCM, HN trong phạm vi đã có số liệu dưới 10.000đ/ticket. Chỉ áp dụng phạm vi này sau khi cập nhật config và chạy lại prepared để xác nhận. |
+| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | Không áp dụng. |
+| Nếu Dừng: bài học ghi lại | Không áp dụng. |
+| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | Danh sách 5 ticket thuộc kho `?` và nguyên nhân thiếu mã kho; cần xác minh nguồn dữ liệu, sau đó chạy lại prepared với phạm vi đã chốt. |
+| Ngày quyết định lại (trừ khi Dừng) | Sau khi xác minh 5 ticket kho `?`, cập nhật phạm vi pilot và chạy lại prepared; hoàn tất trước khi mở pilot. |
+| PIC ký | Chờ NV-TUNG xác nhận quyết định và ký. |
 
 Xong v1 thì lưu và đẩy một bản (sau mốc này không sửa cột v1):
 
