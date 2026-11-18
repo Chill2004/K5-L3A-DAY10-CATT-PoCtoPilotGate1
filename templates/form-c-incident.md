@@ -1,6 +1,6 @@
 # Phiếu C · Sự cố và quyết định v2 · Khối 3 (phút 125–200)
 
-**Bàn:** ______ · **Thẻ đã bốc:** ___ *(để trống tới phút 125; bốc số xong thì ghi đúng số đó, ví dụ `S3`. Lab Coach đối chiếu với sổ; lệnh tự kiểm tra in dòng này trong report.)*
+**Bàn:** `K5-L3A-DAY10-CATT-PoCtoPilotGate1` · **Thẻ đã bốc:** S4 *(để trống tới phút 125; bốc số xong thì ghi đúng số đó, ví dụ `S3`. Lab Coach đối chiếu với sổ; lệnh tự kiểm tra in dòng này trong report.)*
 
 Mở `incidents/Sx/card.md` của đúng số đã bốc. Các bước trên thẻ trỏ về đúng mục trong phiếu này. Mục C3 chỉ điền phần ứng với
 số thẻ của bàn; các phần khác để trống.
@@ -231,13 +231,13 @@ Mở lại Phiếu B mục B3. Ghi ở đây những dòng đổi so với vòng
 
 *Mục riêng, không ghi đè HAZOP vòng 1 ở Phiếu B mục B4. Năm guideword và nghĩa của chúng: xem Phiếu B mục B4.*
 
-Tool chọn phân tích: `________________`
+Tool chọn phân tích: `issue_refund` và `file_carrier_fault` khi LLM `policy_check` lỗi; cộng hai thành phần không phải phần mềm: người duyệt và ngân sách hoàn trong ngày
 
 | Tham số / dòng dữ liệu | Guideword (WRONG / INVALID / INCOMPLETE / PERTURBED / INCAPABLE) | Lệch cụ thể (mã ticket, trường dữ liệu của thẻ) | Hậu quả, cho ai | Hiện có gì ngăn? | Gate đề xuất + tầng |
 |---|---|---|---|---|---|
-| | | | | | |
-| | | | | | |
-| | | | | | |
+| Bước `policy_check` của LLM (nhà cung cấp trả 429, `llm_faults.rate_pct` = 60) | INCAPABLE | `S4-08@11`: hai lần 429 liên tiếp, `llm_fallback` chế độ `fail_open`, `proposal.basis` = `fail_open`, `do_fault` = true, hãng VNX bị ghi lỗi (đơn O-2408, nguyên nhân thật là `MERCHANT_HANDOVER`). `S4-08@22`: chỉ một lần 429 rồi dùng lại được, ĐẠT | Hãng VNX bị ghi lỗi oan (bên thứ ba, có thể bị phạt và tính strike); LogiX hoàn tiền mà không qua kiểm tra chính sách | Cổng vòng 1 của Cường ép `basis=policy` và chỉ ghi lỗi khi tracking đúng là lỗi hãng; chưa có luật "LLM lỗi thì chuyển người" | `write_gate`: khi trace có `llm_fallback`/`fail_open` thì không tự ghi lỗi hãng, chuyển người duyệt. Tầng chặn |
+| Ngân sách hoàn tự động trong ngày (`ops_limits.daily_auto_refund_budget_vnd` = 300.000đ, riêng ngày 11.11) | INCAPABLE | Phút 240–298 có 30 ticket (`S4-07`…`S4-36`). Report base: tổng hoàn tự động 466.000đ > 300.000đ; `business.daily_refund_cap_vnd` của bàn đang để `null`; cổng hiện tại sau khi chạy lại vẫn 422.000đ | Finance (NV-OANH) mất kiểm soát ngân sách đợt sale, phần vượt không có ai duyệt | Chưa có: không có trần tổng ngày trong guard lẫn config | Đặt `business.daily_refund_cap_vnd` = 300000 và `write_gate` chuyển người khi `ctx.tools.auto_refund_today_vnd()` + số tiền sắp hoàn > trần. Tầng giới hạn thiệt hại |
+| Hàng chờ người duyệt (`ops_facts`: 6 ca/giờ/người) | INCAPABLE | Mốc base: 1 người trực, 15 ca/ngày vào hàng chờ, chờ lâu nhất 78 phút, 4 ca bị ùn (hạn 60 phút); `S4-07` (mỹ phẩm bể nắp, phút 240) là ca buộc chuyển người | Khách hàng vỡ/thất lạc chờ quá 60 phút; chị Hạnh (NV-HANH) quá tải | Chỉ có số người trực trong config (mốc grade: 2 người thì chờ lâu nhất 13 phút, 0 ca ùn) | Số người trực + ngưỡng gọi thêm người (Runbook B7.6) + chỉ số hàng chờ trong `monitors.py`. Tầng vận hành |
 
 Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chưa thấy trên trace** lúc viết.
 
@@ -255,9 +255,9 @@ Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
-Giả định (thứ nằm NGOÀI phần mềm): …
+Giả định (thứ nằm NGOÀI phần mềm): giờ cao điểm vẫn có đủ người duyệt rảnh để nhận ca trợ lý chuyển sang trong 60 phút, và nhà cung cấp LLM vẫn trả lời ở bước `policy_check` như ngày thường. Thiết kế vòng 1 của bàn đặt sẵn 2 người trực và coi LLM luôn trả lời.
 
-Vì sao có thể sai: …
+Vì sao có thể sai: thẻ S4 cho thấy đêm 11.11 chỉ một mình chị Hạnh trực, ticket gấp ba dồn vào một giờ sau 20h (30 ticket trong phút 240–298), và LLM trả 429 khoảng 60% ở `policy_check` (`S4-08@11`). Khi đó hàng chờ có ca chờ 78 phút và trợ lý rơi về `fail_open`.
 
 ---
 
@@ -369,7 +369,7 @@ Vẽ lại cây ở C6. Ở mỗi nhánh đã xử lý, thêm một nút `VÀ [g
 
 | Rủi ro | Khả năng | Tác động | Người phụ trách (PIC, một người) | Dấu hiệu (metric nào, ngưỡng nào) | Xử lý | Ảnh hưởng bước đánh giá | Nhóm chức năng (GOVERN / MAP / MEASURE / MANAGE) |
 |---|---|---|---|---|---|---|---|
-| | | | | | | | |
+| Giờ cao điểm (ngày sale): LLM lỗi 429 ở `policy_check` làm trợ lý rơi về `fail_open`, ghi lỗi hãng oan và hoàn tiền không qua kiểm tra; cùng lúc tổng hoàn tự động vượt ngân sách Finance 300.000đ/ngày và hàng chờ người duyệt quá 60 phút | Cao (thẻ S4: `llm_faults` 60%, `S4-08@11` hỏng; mốc base hoàn 466.000đ, chờ lâu nhất 78 phút) | Cao: hãng bị ghi lỗi oan (bên thứ ba), Finance mất kiểm soát ngân sách, khách chờ quá hạn 60 phút | Tú | `risky_action_without_evidence_rate` > 0,01 là vàng, > 0,05 là đỏ (`monitors.py`); dòng "vượt trần" trong report (tổng hoàn tự động > 300.000đ, hàng chờ ùn) | Khi LLM lỗi hoặc đỏ: chuyển người duyệt thay vì tự xử lý; NV-TUNG tắt `file_carrier_fault`; hết ngân sách ngày thì mọi khoản hoàn tiếp theo cần NV-HANH duyệt; NV-HANH gọi thêm người theo B7.6 | Chưa cho phép chọn "Tiếp tục" khi report còn dòng vượt trần; nếu số after còn vượt thì chọn Thu hẹp hoặc Cải tiến thêm | MANAGE |
 
 Quy tắc: **mỗi dòng phải đổi được một quyết định.** Cột "Dấu hiệu" phải là một metric có trong `monitors.py` hoặc trong report.
 
@@ -392,19 +392,19 @@ Ghi các dòng đổi sau sự cố. Mỗi dòng vẫn phải có một PIC có 
 
 | Câu hỏi | Trả lời |
 |---|---|
-| Tín hiệu nào ở Runbook 2 (Phiếu B mục B7.5) lẽ ra phải báo trước sự cố này? Nó đã có chưa? | |
-| Bàn thêm hoặc đổi ngưỡng nào, từ bao nhiêu thành bao nhiêu? | |
-| Bàn đổi gì về **người** (số người trực, ai đứng tên, ai được gọi)? | |
-| Bàn đổi gì về **phạm vi** hoặc **quy trình** (kiểm mẫu, ghi chú giải thích, trần)? | |
-| Nói gì với bên thứ ba bị ảnh hưởng (hãng, shop, người nhận, nhân viên duyệt), ai nói, trong bao lâu? | |
-| Dữ liệu cá nhân nào đã rời hệ thống mà không thu hồi được? Báo cho ai? | |
-| Sự cố lộ ra trước qua số máy đo, phản hồi của người, hay đọc nội dung? Nguồn nào bàn chưa có? | |
+| Tín hiệu nào ở Runbook 2 (Phiếu B mục B7.5) lẽ ra phải báo trước sự cố này? Nó đã có chưa? | Có hai tín hiệu đã có và đã sáng ở thẻ S4: "thời gian chờ lâu nhất" (78 phút, đỏ vì > 60) và "số ca bị ùn" (4 ca, đỏ từ 1 ca). Nhưng chúng chỉ sáng SAU khi khách đã chờ. Tín hiệu "tổng hoàn tự động trong ngày" đặt ngưỡng theo ngân sách ngày thường 2.000.000đ (vàng 1.600.000đ), nên với 466.000đ vượt ngân sách riêng 300.000đ của ngày 11.11 thì không sáng: bàn sót. Thiếu hẳn một tín hiệu: LLM lỗi (429 / `fail_open`), chưa có trong Runbook 2 |
+| Bàn thêm hoặc đổi ngưỡng nào, từ bao nhiêu thành bao nhiêu? | Tổng hoàn tự động ngày sale: ngân sách 2.000.000đ → 300.000đ (vàng ở 240.000đ). Hàng chờ gọi thêm người: từ 12 ca → từ 6 ca đang chờ (hoặc chờ > 30 phút). Thêm tín hiệu mới: LLM lỗi quá 10 phút hoặc có ca `fail_open` thì không tự ghi lỗi hãng, chuyển người. Các ngưỡng đã có trong B7.6; số after sẽ ghi lại ở C12 |
+| Bàn đổi gì về **người** (số người trực, ai đứng tên, ai được gọi)? | Ngày sale trực 2 người, dự phòng người thứ ba (từ 1 người trực đêm 11.11); NV-HANH đứng tên gọi thêm người trong 15 phút; NV-OANH theo dõi tổng hoàn trong ngày và được báo khi đạt 240.000đ; NV-TUNG giữ công tắc và quyết thu hẹp hoặc tắt |
+| Bàn đổi gì về **phạm vi** hoặc **quy trình** (kiểm mẫu, ghi chú giải thích, trần)? | Đặt trần hoàn tự động trong ngày 300.000đ (`business.daily_refund_cap_vnd`), vượt thì mọi khoản hoàn cần NV-HANH duyệt; khi LLM lỗi hoặc `fail_open` thì không tự ghi lỗi hãng và chuyển người duyệt (sửa trong `lab10/guards.py`). Không thu hẹp phạm vi về 0: độ phủ và ROI vẫn được đo |
+| Nói gì với bên thứ ba bị ảnh hưởng (hãng, shop, người nhận, nhân viên duyệt), ai nói, trong bao lâu? | Hãng bị ghi lỗi oan (như VNX ở `S4-08@11`): NV-OANH gửi đính chính và gỡ bản ghi lỗi oan trong 24 giờ. Chị Hạnh và người duyệt: NV-TUNG báo kế hoạch thêm người trước ngày sale kế tiếp. Finance: NV-OANH báo khoản vượt 300.000đ ngay khi chạm trần |
+| Dữ liệu cá nhân nào đã rời hệ thống mà không thu hồi được? Báo cho ai? | Report ghi 0 lần lộ dữ liệu cá nhân ở mốc base, nhưng trace `S4-08@11` cho thấy ghi chú của khách (`customer_note`) nằm trong payload `notify_carrier` gửi hãng VNX. Cổng `legal.pii_fields_blocked_to_third_party` (`recipient_contact`, `customer_note`) chặn các trường này ở mốc after. Với phần đã gửi, NV-TUNG báo hãng xoá bản nhận |
+| Sự cố lộ ra trước qua số máy đo, phản hồi của người, hay đọc nội dung? Nguồn nào bàn chưa có? | Lộ ra qua phản hồi của người: tin nhắn của giám sát vận hành (NV-TUNG) và của Finance (NV-OANH), rồi mới có report. Bàn chưa có số đo thời gian thực về hàng chờ và tổng hoàn trong ngày, cũng chưa đếm số lần LLM trả 429 |
 
 ### Runbook 5 · Ba kịch bản "nếu … thì …" cho tuần đầu chạy thử thật
 
-1. Nếu số ticket tăng gấp ___ lần trong một giờ thì: …
-2. Nếu nhà cung cấp LLM lỗi quá ___ phút thì: …
-3. Nếu người duyệt báo không tin một quyết định của trợ lý thì: …
+1. Nếu số ticket tăng gấp **3** lần trong một giờ (khoảng 30 ticket/giờ, như đêm 11.11) thì: NV-HANH gọi người duyệt thứ ba trong 15 phút (3 người = 18 ca/giờ); NV-OANH theo dõi tổng hoàn tự động; khi chạm 300.000đ thì mọi khoản hoàn tiếp theo cần NV-HANH duyệt; nếu vẫn có ca chờ quá 60 phút thì NV-TUNG thu hẹp phạm vi pilot (báo cho nhóm chat trực).
+2. Nếu nhà cung cấp LLM lỗi quá **10** phút thì: trợ lý không tự ghi lỗi hãng và không tự hoàn tiền, chuyển người duyệt; NV-TUNG tắt `file_carrier_fault` trong 15 phút; NV-OANH đối soát các ca có `basis` = `fail_open` trong 24 giờ qua; chỉ bật lại khi LLM ổn định và NV-HANH đồng ý.
+3. Nếu người duyệt báo không tin một quyết định của trợ lý thì: ca đó chuyển sang NV-HANH xử lý bằng tay và ghi lại lý do; từ 2 ca cùng loại trong một ngày thì NV-TUNG tắt thao tác ghi liên quan và kiểm tay 100% quyết định loại đó trong 24 giờ; nhóm họp trong 24 giờ để tìm nguyên nhân trước khi bật lại.
 
 ---
 
