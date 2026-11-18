@@ -1,8 +1,8 @@
 {
- "run_id": "R-S4-grade-20261118-213923-490375",
+ "run_id": "R-S4-grade-20261119-031437-871d0a",
  "incident": "S4",
  "grader_version": "lab10-1.0",
- "code_hash": "490375f718e08bfc296ba0d8465808d64cdeae668bb954e1be72a0d72927711a",
+ "code_hash": "871d0abc14377dd626089145727c86522f505db4ebca855f2fcf6f96f8e83e6f",
  "integrity": {
   "ok": false,
   "changed": [
@@ -1351,9 +1351,9 @@
   }
  },
  "run_ids": {
-  "before": "R-S4-before-20261118-213926-490375",
-  "prepared": "R-S4-prepared-20261118-213927-490375",
-  "after": "R-S4-after-20261118-213928-490375"
+  "before": "R-S4-before-20261119-031437-871d0a",
+  "prepared": "R-S4-prepared-20261119-031437-871d0a",
+  "after": "R-S4-after-20261119-031437-871d0a"
  },
  "visible": {
   "before_red": true,
@@ -1417,5 +1417,5 @@
  "hard_gates_ok": false,
  "score": null,
  "verdict": "FAIL",
- "seconds": 6.269
+ "seconds": 0.479
 }
