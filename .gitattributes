@@ -1,0 +1,12 @@
+# Giữ đúng byte của các file bị khoá bằng hash, trên mọi máy (Windows/macOS/Linux).
+# File khoá theo MANIFEST được tạo dạng LF.
+* text=auto eol=lf
+# Tiêu chí được ký trên Windows nên hash trong .lock là của bản CRLF.
+config/acceptance_criteria.json text eol=crlf
+submission/**/acceptance_criteria.json text eol=crlf
+# Bản chốt vòng 1 được tạo và commit nguyên dạng CRLF; không cho Git đổi.
+config/operating_gates.round1.json -text
+config/round1.lock -text
+lab10/guards_round1.py -text
+submission/**/guards_round1.py -text
+submission/**/operating_gates.round1.json -text

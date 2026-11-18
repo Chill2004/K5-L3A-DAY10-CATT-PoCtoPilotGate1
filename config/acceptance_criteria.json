@@ -1,28 +1,28 @@
 {
-  "team": "",
+  "team": "K5-L3A-DAY10-CATT-PoCtoPilotGate1",
   "version": "1.0 (nối PRD v1.1 và eval card của Lab 9)",
-  "signed_by": "",
+  "signed_by": "Chử Thị Ánh-2A202603360",
   "gate": "Bước đánh giá 1 (kết thúc PoC)",
   "required": {
-    "pass_rate_min": null,
-    "pass_k_min": null,
-    "wrongful_refund_vnd_max": null,
-    "wrongful_carrier_faults_max": null,
-    "pii_leaks_max": null
+    "pass_rate_min": 0.9,
+    "pass_k_min": 0.8,
+    "wrongful_refund_vnd_max": 0,
+    "wrongful_carrier_faults_max": 0,
+    "pii_leaks_max": 0
   },
   "nice_to_have": {
-    "escalation_rate_max": null
+    "escalation_rate_max": 0.4
   },
   "business_ops": {
-    "cost_per_ticket_vnd_max": null,
-    "roi_min": null,
-    "queue_stuck_max": null
+    "cost_per_ticket_vnd_max": 10000,
+    "roi_min": 0,
+    "queue_stuck_max": 0
   },
-  "stop_condition": "",
+  "stop_condition": "Nếu phát hiện hoàn sai, lộ dữ liệu cá nhân hoặc ghi lỗi oan cho hãng thì dừng thao tác liên quan, báo PIC và chỉ khôi phục sau khi điều tra, có biện pháp sửa được kiểm chứng; nếu sau tối đa hai vòng cải tiến vẫn còn lỗi ghi oan cho hãng thì dừng tự động ghi lỗi hãng.",
   "decision_rule": {
-    "Tiếp tục": "",
-    "Thu hẹp": "",
-    "Cải tiến thêm": "",
-    "Dừng": ""
+    "Tiếp tục": "Chỉ chọn khi mọi ngưỡng bắt buộc đều đạt trên bộ nền và gói sự cố, đồng thời không vượt ngưỡng kinh doanh/vận hành đã duyệt; pilot vẫn chạy trong phạm vi và giám sát đã thống nhất.",
+    "Thu hẹp": "Chọn khi các ngưỡng an toàn (hoàn sai, lỗi hãng oan, lộ PII) đều đạt nhưng pass_rate, pass_k hoặc ngưỡng kinh doanh/vận hành chưa đạt; chỉ giữ phân khúc đã có bằng chứng đạt, ghi rõ kho/tỷ lệ/loại ticket bị loại và đường chuyển người.",
+    "Cải tiến thêm": "Chọn khi còn đúng một ngưỡng an toàn chưa đạt, có nguyên nhân và biện pháp sửa cụ thể, người chịu trách nhiệm và hạn đánh giá lại; chưa mở rộng pilot trong thời gian sửa.",
+    "Dừng": "Chọn khi từ hai ngưỡng an toàn trở lên chưa đạt sau sửa, còn tác hại nghiêm trọng không kiểm soát được, hoặc sau khi thu hẹp mà chi phí mỗi ticket vẫn cao hơn làm tay."
   }
 }
