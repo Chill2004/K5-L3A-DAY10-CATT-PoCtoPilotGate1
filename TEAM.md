@@ -55,8 +55,6 @@ Sử dụng ChatGPT/Codex và Claude để đọc mã nguồn, chẩn đoán l�
 
 ### Exit ticket
 
-*(Bản nháp, Cường đọc và sửa theo ý mình trước khi nộp.)*
-
 Điều học được: cổng kiểm lệnh ghi so với nguồn sự thật (tracking DB) thì không phụ thuộc LLM đúng hay lỗi, nên S4-08 vẫn an toàn khi LLM rơi về `fail_open`; nhưng cổng kỹ thuật không giải quyết được ngân sách và người trực, phải có con số trong config và người chịu trách nhiệm. Ngoài ra, một khác biệt xuống dòng LF/CRLF cũng đủ làm hỏng "ký trước khi đo", nên tính toàn vẹn phải được kiểm trên đúng máy của người chấm.
 
 Điều còn chưa chắc: trần 300.000đ chỉ đúng cho ngày 11.11 trong dữ liệu giả lập; chưa biết bài kiểm tra ẩn có ngày với ngân sách khác không, và cổng "LLM lỗi thì chuyển người" có làm hàng chờ ùn khi LLM lỗi kéo dài hơn trong pilot thật hay không.
