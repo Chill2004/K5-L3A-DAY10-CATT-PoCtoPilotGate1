@@ -447,4 +447,3 @@ git add lab10/guards.py lab10/guards_round1.py config/operating_gates.json confi
 git commit -m "LAB 10: chốt cổng vòng 1, quyết định v1"
 git push -u origin main
 ```
->>>>>>> bfd634ff8cbc432cd063040fac14d9b73e0acde2
