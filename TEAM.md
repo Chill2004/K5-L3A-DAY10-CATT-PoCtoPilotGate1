@@ -5,7 +5,7 @@
 - Tên nhóm (`TenNhom`, không dấu, không khoảng trắng): CATT
 - Lớp: `L3A`
 - Repo của bàn: `K5-L3A-DAY10-CATT-PoCtoPilotGate1`
-- Thẻ sự cố đã bốc (S1–S8):
+- Thẻ sự cố đã bốc (S1–S8): S4
 
 ## Thành viên
 
@@ -15,7 +15,7 @@ Họ tên đầy đủ và MSSV của **mọi** thành viên; thêm dòng nếu 
 | --: | --------- | ---- | --- | :---------: |
 |   1 | Cường (bổ sung họ tên đầy đủ) | 2A202603355 | Kỹ sư cổng | Có |
 |   2 | Trí (bổ sung họ tên đầy đủ) | Cần bổ sung | Kỹ sư cổng | |
-|   3 | Ánh (bổ sung họ tên đầy đủ) | Cần bổ sung | Sản phẩm và kinh doanh | |
+|   3 | Chử Thị Ánh | 2A202603360 | Sản phẩm và kinh doanh | |
 |   4 | Tú (bổ sung họ tên đầy đủ) | Cần bổ sung | Vận hành và pháp lý | |
 
 Ghi `members` trong `submission/submission.json` theo dạng `"HoVaTen-MSSV"`, khớp bảng trên.
@@ -45,6 +45,24 @@ Sử dụng ChatGPT/Codex để đọc hướng dẫn, hỗ trợ phân công v�
 ### Exit ticket
 
 Cường tự bổ sung một điều học được và một điều còn chưa chắc trước khi nộp.
+
+## Chử Thị Ánh-2A202603360
+
+### Phần việc phụ trách
+
+Vai trong bàn; câu nào của đề, mục nào của phiếu A/B/C, file nào (`lab10/guards.py`, `config/operating_gates.json`, …).
+
+### Đóng góp cụ thể
+
+...
+
+### Bằng chứng
+
+Mã commit, mã lần chạy (`runs/<mã>`), dòng trong phiếu.
+
+### Exit ticket
+
+Một điều học được, một điều còn chưa chắc.
 
 ## HoVaTen-MSSV
 

@@ -122,15 +122,14 @@ tín hiệu: đếm sự kiện `model_override` mỗi ngày.
 
 ## B3 · Câu 2.3 · Bản đồ dữ liệu của trợ lý và ví dụ drift
 
-**Cách làm:** đi từ người dùng và việc họ cần làm, tới đầu ra của hệ thống, rồi mới hỏi hệ thống cần dữ liệu
-gì, định dạng ra sao, và **thế giới thật làm dữ liệu đó lệch đi thế nào**; cuối cùng tóm lại trong vài câu.
+**Cách làm:** đi từ người dùng và việc họ cần làm, tới đầu ra của hệ thống, rồi mới hỏi hệ thống cần dữ liệu gì, định dạng ra sao, và **thế giới thật làm dữ liệu đó lệch đi thế nào**; cuối cùng tóm lại trong vài câu.
 Trợ lý LogiX không huấn luyện gì trong lab này, nên ta hỏi về "dữ liệu trợ lý đọc lúc chạy / trường then chốt / nguồn sự thật".
 Gợi ý: mở `data/world.json` phần `policies`, `orders[].parcels`, `ops_limits`, `ops_facts`.
 
 | Mục | Điền cho trợ lý hoàn tiền |
 |---|---|
-| Người dùng | |
-| Việc người dùng cần làm xong | |
+| Người dùng | Khách hàng gửi yêu cầu qua ticket; CSKH theo dõi kết quả và NV-HANH duyệt các ca được chuyển người. |
+| Việc người dùng cần làm xong | Xác định theo tracking và chính sách hiện hành liệu đơn giao trễ có được hoàn hay không; trả lời khách, hoàn đúng khoản và chỉ ghi lỗi cho đúng hãng khi có căn cứ. |
 | Đầu ra của hệ thống (kể cả các lệnh ghi) | |
 | Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | |
 | Trường then chốt quyết định tiền và lỗi hãng | |
