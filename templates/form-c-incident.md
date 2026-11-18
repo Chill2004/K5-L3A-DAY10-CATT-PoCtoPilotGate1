@@ -30,10 +30,10 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | Sx · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | | | | | |
-| 2 | | Sx · after | | | | | | |
-| 3 | | Sx · after | | | | | | |
-| 4 | | base · after | (kiểm không regression) | | | | | |
+| 1 | `R-S4-prepared-20261118-212836-e6c9d1` | S4 · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | 1.0 [1.0; 1.0] | 1.0 | 0 · 0 · 0 | 0.3659 | Cổng vòng 1 đã chặn hết ghi lỗi oan (27 → 0) và hoàn sai (160.000đ → 0) nhưng tổng hoàn tự động vẫn 422.000đ, vượt ngân sách 11.11 là 300.000đ |
+| 2 | `R-S4-after-20261118-212631-e6c9d1` | S4 · after | thêm nhánh trần ngân sách hoàn tự động trong ngày vào `write_gate` (đọc `ops_limits.daily_auto_refund_budget_vnd`) | 1.0 [1.0; 1.0] | 1.0 | 0 · 0 · 0 | 0.5122 | Tổng hoàn tự động còn 292.000đ ≤ 300.000đ, hết vượt trần; đổi lại 6 ca/ngày chuyển thêm sang người, hàng chờ vẫn 0 ca ùn (lâu nhất 13 phút) |
+| 3 | `R-S4-after-20261118-212836-e6c9d1` | S4 · after | không đổi code; chạy lại trong `lab10.grade` sau khi ghim xuống dòng (`.gitattributes`) để integrity và tiêu chí khớp hash | 1.0 [1.0; 1.0] | 1.0 | 0 · 0 · 0 | 0.5122 | Số giống lần 2; tiêu chí `0138aa3c85fd` KHÔNG ĐỔI, `visible` ✅ |
+| 4 | `R-base-after-20261118-212639-e6c9d1` | base · after | (kiểm không regression) | 1.0 [1.0; 1.0] | 1.0 | 0 · 0 · 0 | 0.2273 | Bộ nền không có ca mới hỏng; ngày thường ngân sách 2.000.000đ nên cổng trần không chặn ca nào (tổng 155.000đ) |
 
 ---
 
@@ -315,9 +315,11 @@ python3 -m lab10.grade --incident Sx
 
 | Nhánh fault tree | Nguyên nhân | Chỗ sửa (hàm + nhánh trong `guards.py`, hoặc khoá trong `operating_gates.json`) | Tầng (phát hiện / chặn / giới hạn thiệt hại / vận hành) | GIẢM khả năng hay NGĂN hẳn? Vì sao | Mã lần chạy sau khi sửa |
 |---|---|---|---|---|---|
-| [1] | | | | | |
-| [2] | | | | | |
-| [3] | | | | | |
+| [1] Hãng bị ghi lỗi oan / hoàn tiền không qua chính sách khi LLM lỗi | LLM trả 429 ở `policy_check`, agent rơi về `fail_open` và đề xuất `do_fault` = true (`S4-08@11`, đơn O-2408, nguyên nhân thật `MERCHANT_HANDOVER`) | Giữ cổng vòng 1 trong `write_gate`: nhánh `issue_refund` tính lại số tiền bằng `H.entitlement_vnd` từ tracking DB + chính sách (`Verdict.modify`, `basis="policy"`); nhánh `file_carrier_fault` chỉ cho ghi khi `H.carrier_at_fault` đúng theo DB, chặn ghi lặp. Không cần code mới ở vòng 2 | chặn | **NGĂN** nhánh này: cổng không đọc kết quả LLM mà đối chiếu lệnh ghi với tracking DB, nên LLM lỗi hay đúng thì lệnh ghi sai vẫn bị chặn. Còn hở nếu chính tracking DB ghi sai nguyên nhân | prepared `R-S4-prepared-20261118-212836-e6c9d1` (lỗi oan 27 → 0, hoàn sai 160.000đ → 0) |
+| [2] Tổng hoàn tự động vượt ngân sách Finance ngày sale | Không có trần tổng ngày: `business.daily_refund_cap_vnd` = `null`, guard vòng 1 không xét tổng ngày; ngày 11.11 Finance chốt riêng 300.000đ (`ops_limits.daily_auto_refund_budget_vnd`) | Nhánh mới trong `write_gate` → `issue_refund`: khoản hoàn không có `approval_id` mà `ctx.tools.auto_refund_today_vnd()` + số tiền > min(ngân sách Finance của ngày trong `ops_limits`, `business.daily_refund_cap_vnd` nếu có) thì `Verdict.escalate` sang người duyệt. Đọc trần từ dữ liệu thay vì gõ cứng 300.000 nên ngày thường (2.000.000đ) không bị chặn oan | giới hạn thiệt hại | **NGĂN** phần hoàn TỰ ĐỘNG vượt ngân sách (cổng chạy trước mỗi lệnh ghi, cộng dồn từ sổ cái). Không ngăn tổng hoàn cả ngày (kể cả ca người duyệt) vượt; đó là quyết định của người. Phụ thuộc Finance cập nhật đúng ngân sách ngày sale vào `ops_limits` | after `R-S4-after-20261118-212631-e6c9d1` (466.000đ base → 422.000đ prepared → 292.000đ ≤ 300.000đ) |
+| [3] Khách chờ người duyệt quá 60 phút | Một người duyệt 6 ca/giờ, ticket gấp ba dồn vào một giờ; cổng [2] còn đẩy thêm ca sang người (tỉ lệ chuyển 0,3659 → 0,5122) | `operations.reviewers_on_shift` = 2 (Tú, đã có từ vòng 1) + ngưỡng gọi người thứ ba ở Runbook B7.6 / C11; theo dõi bằng `risky_action_without_evidence_rate` và dòng hàng chờ của report | vận hành | **GIẢM** khả năng: 2 người duyệt 12 ca/giờ, chờ lâu nhất 13 phút, 0 ca ùn trên gói thẻ; nhưng nếu lượng việc tăng hơn gấp ba hoặc thiếu người thật thì vẫn ùn | after `R-S4-after-20261118-212631-e6c9d1` (chờ lâu nhất 78 → 13 phút, ca ùn 4 → 0) |
+
+Ghi chú của Kỹ sư cổng: sau cổng [2], ROI trên gói thẻ giảm từ 0,75 (prepared) xuống 0,4 vì thêm ca chuyển người; vẫn ≥ ngưỡng `roi_min` = 0 đã ký và chi phí mỗi ticket 7.157đ < 10.000đ. Bộ nền vẫn ROI 0,8, không ca mới hỏng (`R-base-after-20261118-212639-e6c9d1`).
 
 ---
 
@@ -337,7 +339,7 @@ Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket t
 | **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | `risky_count / max(1, len(trials))`. Mỗi trial có ít nhất 1 dấu hiệu: (1) `model_override` có `db != ticket`, hoặc (2) có `faults` nhưng tracking không ghi nhận nguyên nhân hợp lệ, hoặc (3) outbound gửi hãng chứa PII (`recipient_contact`, `phone`, `name`). Mẫu số trống trả về `0.0`. |
 | **Khung thời gian / ngưỡng báo động** | Tính theo batch (mỗi giờ hoặc theo ca làm việc 8 tiếng). Ngưỡng VÀNG: > 0.01 (1%); Ngưỡng ĐỎ: > 0.05 (5%) -> Tự động kích hoạt kiểm tra rà soát và chuyển người duyệt. |
 | **Điểm mù** (chỉ số này KHÔNG thấy gì) | Không phát hiện được trường hợp tính sai số tiền hoàn do chính sách thay đổi nhưng vẫn khớp số ngày trễ; không đo được thời gian chờ trong hàng đợi. |
-| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | Bộ nền: `0.0091` (bắt đúng 1 ca T-002@55 bị model override đè 5 ngày lên 2 ngày) · Trên thẻ: [Chờ chạy mốc incident ở phút 125] |
+| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | Bộ nền: `0.0091` (bắt đúng 1 ca T-002@55 bị model override đè 5 ngày lên 2 ngày) · Trên thẻ S4: `0.1854` ở cả base và after (`R-S4-grade` mục `6 monitor`). Chỉ số không giảm sau sửa vì nó đếm hành vi agent ĐỀ XUẤT (ví dụ `llm_fallback` ở `S4-08@11`), không đếm lệnh ghi đã bị cổng chặn, nên nó là tín hiệu phát hiện sớm chứ không đo tác hại |
 
 ---
 
