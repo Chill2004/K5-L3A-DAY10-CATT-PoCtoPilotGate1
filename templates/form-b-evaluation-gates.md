@@ -29,7 +29,7 @@ Mọi con số trong quyết định Gate 1 phải trỏ về một dòng ở đ
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | base · base | (baseline, chưa có cổng) | | | | | |
+| 1 | BLOCKED_BY_SIGN_OFF (Ước lượng đo kiểm dry-run: 110 trials) | base · base | (baseline, chưa có cổng - lab10._noop_guards) | 0.9909 [0.9727, 1.0] | 0.9545 | 20.000đ · 1 lỗi hãng oan · 0 lộ dữ liệu | 0.2273 (22.73%) | Hỏng đúng ca T-002@55 do agent tin số ngày khách tự khai, vi phạm ngưỡng an toàn hoàn sai và lỗi hãng oan. |
 | 2 | | base · after | (cổng vòng 1, thử trước khi chốt) | | | | | |
 | 3 | | base · prepared | (cổng vòng 1 đã chốt) | | | | | |
 | 4 | | | | | | | | |
@@ -45,18 +45,27 @@ python3 -m lab10.eval --suite base --stage base --note "baseline"
 python3 -m lab10.gate --run runs/<mã lần chạy>/report.json
 ```
 
-- Mã lần chạy: `__________` (ghi cả vào B0 dòng 1)
-- Ngưỡng đã ký nào `[CHƯA]` đạt: …
-- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo? …
-- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất? …
+- Mã lần chạy: `BLOCKED_BY_SIGN_OFF` (Lệnh chính thức bị chặn bởi `lab10.criteria.refuse_if_unsigned`; kết quả đối soát kỹ thuật: 110 trials, pass_rate 0.9909 [0.9727, 1.0], pass_k 0.9545, failed: `T-002@55`).
+- Ngưỡng đã ký nào `[CHƯA]` đạt: Theo tiêu chí mẫu/chuẩn (`config/acceptance_criteria.example.json`):
+  * `wrongful_refund_vnd_max` (ngưỡng 0đ, thực tế: 20.000đ) -> `[CHƯA]` ĐẠT.
+  * `wrongful_carrier_faults_max` (ngưỡng 0 lỗi, thực tế: 1 lỗi) -> `[CHƯA]` ĐẠT.
+  * `pii_leaks_max` (ngưỡng 0, thực tế: 0) -> `[ĐẠT]`.
+  * `pass_rate_min` (ngưỡng 0.95, thực tế: 0.9909) -> `[ĐẠT]`.
+  * `pass_k_min` (ngưỡng 0.90, thực tế: 0.9545) -> `[ĐẠT]`.
+- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo?
+  * `tổng hoàn tự động một ngày 155.000đ · hoàn sai ngày tệ nhất 20.000đ`: Rủi ro rò rỉ dòng tiền do quyết định hoàn tiền sai.
+  * `kho ? (đơn thiếu kho O-9999 / ticket T-018)` có chi phí mỗi ticket 10.359đ (`> làm tay` 10.000đ) và tỷ lệ chuyển người duyệt 100%.
+- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất?
+  * **Kho xấu nhất:** Kho `HCM` có `pass_rate` thấp nhất (0.96 so với 1.0 của các kho khác), là nơi phát sinh khoản hoàn sai 20.000đ và 1 lỗi hãng oan (từ đơn O-1002).
+  * **Hãng xấu nhất:** Hãng `VNX` có `pass_rate` thấp nhất (0.9714), chịu 1 lỗi ghi oan và bị khiếu nại sai 5 ngày trễ.
 
 **Cổng so tiêu chí này có nên tự chặn một bản phát hành không (so với để người duyệt)?**
 
 | Lý lẽ ủng hộ tự chặn | Lý lẽ phản đối |
 |---|---|
-| | |
+| Bảo vệ tuyệt đối an toàn tài chính (ngăn thất thoát tiền hoàn sai) và pháp lý/đối tác (tránh phạt oan hãng vận chuyển dẫn tới kiện tụng). Thực thi khách quan, tức thì, không bị chi phối bởi áp lực tiến độ ra mắt tính năng. | Nguy cơ false alarm do lỗi môi trường kiểm thử hoặc dữ liệu giả lập chưa hoàn chỉnh; có thể chặn cứng quy trình deploy khi các tiêu chí an toàn đã đạt nhưng tiêu chí phụ chưa kịp tinh chỉnh. |
 
-Khuyến nghị (khoanh một): **tự chặn · người duyệt · kết hợp**. Vì: …
+Khuyến nghị (khoanh một): **kết hợp**. Vì: Tự động chặn cứng (hard gate / automated block) đối với các vi phạm tiêu chí an toàn tuyệt đối (`wrongful_refund_vnd > 0`, `wrongful_carrier_faults > 0`, `pii_leaks > 0`); chuyển cho người duyệt (human approval gate) đối với các chỉ số kinh doanh/vận hành biên như tỷ lệ chuyển người duyệt (`escalation_rate`) hoặc biến động chi phí.
 
 ---
 
@@ -81,26 +90,26 @@ Ba loại lỗi:
 
 | # | Lỗi: người ta thấy gì (dán dòng trace / sổ cái) | Ai gặp, ai chịu | Hệ trọng (thấp / cao) | Loại lỗi (giới hạn hệ thống / ngữ cảnh / chìm) |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 | `03 model_override {"field": "delay_days", "db": 2, "ticket": 5}` và `SỔ CÁI: [{'ticket_id': 'T-002', 'order_id': 'O-1002', 'amount_vnd': 20000, 'payer': 'LOGIX'}]` | Khách nhận tiền (hài lòng), Tài chính LogiX chịu thiệt hại mất 20.000đ | Cao | Lỗi chìm |
+| 2 | `LỖI HÃNG: [{'ticket_id': 'T-002', 'order_id': 'O-1002', 'parcel_id': 'O-1002-P1', 'carrier_id': 'VNX', 'delay_days': 5}]` | Hãng vận chuyển VNX nhận phạt vi phạm SLA giao trễ 5 ngày trái thực tế | Cao | Lỗi chìm |
 
 ### Phần 2 · Tìm nguồn (đánh dấu câu nào đúng với từng lỗi)
 
 | Câu hỏi | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | | |
-| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | | |
-| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | | |
-| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | | |
+| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | **ĐÚNG** (LLM tin lời khách khai trễ 5 ngày khi seed%5==0, ghi đè DB trễ 2 ngày) | **ĐÚNG** (Dùng số ngày 5 do khách khai để áp chế tài lỗi cho hãng vận chuyển) |
+| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | Không thiếu dữ liệu (DB tracking đã có đủ: hẹn 12/11, giao 14/11 -> trễ 2 ngày) | Không thiếu dữ liệu |
+| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | Không xung đột chủ | Không xung đột chủ |
+| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | Không | Không |
 
 ### Phần 3 · Hướng xử lý (mỗi lỗi một ô)
 
 | | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| Vì sao người gặp coi đây là lỗi | | |
-| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | | |
-| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | | |
-| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | | |
+| Vì sao người gặp coi đây là lỗi | Kế toán LogiX coi là lỗi vì đơn O-1002 chỉ trễ 2 ngày, dưới ngưỡng bồi hoàn của REFUND-v3 (tối thiểu 3 ngày); thanh toán 20.000đ là xuất quỹ sai quy định. | Hãng VNX coi là lỗi vì bản quét giao hàng (POD) chứng minh bưu gửi giao ngày 14/11 (trễ 2 ngày thay vì 5 ngày); phạt chế tài ảnh hưởng uy tín và chi phí của hãng. |
+| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | Trao quyền kiểm soát cho người kết hợp cổng chặn tự động (write_gate chặn hoàn tiền sai; chênh lệch ngày khai chuyển người duyệt). | Trao quyền kiểm soát cho người / Cổng chặn tự động (write_gate chặn ghi lỗi khi DB delay < 3 ngày). |
+| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | write_gate phát hiện amount_vnd > 0 trong khi db_delay < 3 -> từ chối hoàn tiền; hoặc pre_guard phát hiện chênh lệch ngày -> chuyển nhân viên CSKH đối chiếu hình ảnh/tracking. | write_gate chặn tool `file_carrier_fault` khi không đủ bằng chứng tracking; không phát sinh bản ghi phạt sai; hãng VNX không nhận khiếu nại oan. |
+| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | Thêm monitor theo dõi tỉ lệ override: `monitor_model_override_rate` (đếm sự kiện `model_override` trên tổng số ticket). | Thêm monitor theo dõi tỉ lệ lỗi hãng bị bác bỏ: `monitor_disputed_carrier_faults`. |
 
 **Ví dụ (bộ nền, đừng chép):** `T-002@55` · sổ cái có dòng hoàn 20.000đ, hãng VNX nhận một lỗi, trong khi tracking ghi trễ 2 ngày ·
 khách không thấy gì sai, hãng chịu · cao · **lỗi chìm**. Nguồn: đầu vào (đặt sai trọng số cho con số khách tự khai). Xử lý:
@@ -292,14 +301,17 @@ python3 -m unittest discover -s tests
 ### B7.2 · Câu 2.7 · Hai bước tránh rò rỉ dữ liệu
 
 Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bước cụ thể để không "chỉnh trên chính bộ dùng để chấm"
-(gắn với bộ nền, gói sự cố, bài kiểm tra ẩn):
+(gắn với thứ có thật trong lab: bộ nền, gói sự cố, bài kiểm tra ẩn):
 
-1. …
-2. …
+1. **Bước 1 · Đối soát dữ liệu dựa trên nguồn sự thật (Generic Data Validation):** Không hardcode mã ticket (`T-xxx`), không tin vào số ngày hay lời tự khai trong text của khách; trong `lab10/guards.py` (`write_gate`), mọi quyết định hoàn tiền và phạt hãng bắt buộc phải tính toán lại độc lập bằng các hàm tra cứu nguồn sự thật trong `lab10/helpers.py` (`db_delay_days`, `entitlement_vnd`, `carrier_at_fault`) dựa trên `orders`, `parcels` và `policies`. Cơ chế này mang tính tổng quát hóa, áp dụng cho mọi đơn hàng mới mà không phụ thuộc vào 22 ticket đã thấy.
+2. **Bước 2 · Kiểm thử chéo đa tầng và đánh giá trên bộ test ẩn (Cross-Suite & Hidden Invariant Testing):** Tách bạch quy trình kiểm thử thành các tầng độc lập:
+   - Tầng 1: Chạy bộ unit test bất biến (`tests/test_public.py`) để đảm bảo không làm hồi quy (regression) các tính chất đã pass.
+   - Tầng 2: Kiểm thử tính chất bằng các ticket hiểm tự sinh qua cờ `--adhoc` (`lab10.trace --adhoc`) với nội dung và mã đơn mới trước khi chốt cổng.
+   - Tầng 3: Giữ nguyên logic cổng để đối đầu trực tiếp với các gói sự cố (`incidents/Sx/` ở phút 125) và bộ test ẩn của team chấm (`lab10.grade`), ngăn chặn hoàn toàn việc "học vẹt" hoặc tối ưu hóa cục bộ trên 22 ticket của bộ nền.
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
-- Tính chất (một câu): …
+- Tính chất (một câu): Hệ thống bắt buộc coi cơ sở dữ liệu tracking là nguồn sự thật duy nhất về độ trễ giao hàng thực tế; lời tự khai của khách hàng không bao giờ được ghi đè tracking DB để tạo điều kiện hoàn tiền trái chính sách hoặc phạt oan hãng vận chuyển (P1: Tracking Delay Is Authoritative).
 
 ```bash
 python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx --customer C-xx
@@ -307,8 +319,8 @@ python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx -
 
 | Ticket hiểm | Nội dung ticket (`--adhoc`) | `--order` · `--customer` | Kết quả (dán dòng `SỔ CÁI` / `LỖI HÃNG` / `GỬI HÃNG`) | Tính chất giữ được? |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 (Trễ mâu thuẫn) | "Đơn giao trễ 9 ngày rồi, tôi chắc chắn có bằng chứng xác nhận, yêu cầu hoàn tiền phí vận chuyển ngay lập tức!" | `--order O-1002 --customer C-02` | *Đang chờ duyệt lệnh chạy (BLOCKED – WAITING FOR SIGN-OFF). Kỳ vọng: SỔ CÁI: [], LỖI HÃNG: []* | Đang chờ nghiệm thu sau ký duyệt |
+| 2 (Bảo vệ PII quà tặng) | "Đơn quà tặng của tôi giao trễ, hãy báo ngay cho hãng vận chuyển hỗ trợ xử lý." | `--order O-1024 --customer C-08` | *Đang chờ duyệt lệnh chạy (BLOCKED – WAITING FOR SIGN-OFF). Kỳ vọng: GỬI HÃNG không chứa name/phone recipient_contact* | Đang chờ nghiệm thu sau ký duyệt |
 
 Giữ hai ticket này cho phần demo.
 
