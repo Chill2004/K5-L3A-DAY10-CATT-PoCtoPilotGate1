@@ -351,7 +351,7 @@ Mỗi dòng một tín hiệu. Cột "Lấy ở đâu" phải là một dòng tr
 #### Runbook 3 · Điều kiện dừng và cách dừng
 
 - Dừng một phần (tắt một thao tác ghi, thu hẹp phạm vi) khi: có 1 lần ghi lỗi oan cho hãng (tắt `file_carrier_fault`); có 1 lần lộ dữ liệu cá nhân sang hãng (tắt `notify_carrier`); có 1 khoản hoàn sai (tắt `issue_refund`); có ca chờ quá 60 phút hoặc ≥ 1 ca bị ùn (thu hẹp `business.pilot_scope`).
-- Dừng hẳn khi: sau 2 vòng cải tiến mà vẫn còn lệnh ghi lỗi oan cho hãng hoặc vẫn còn hoàn sai, hoặc chi phí mỗi ticket vẫn cao hơn làm tay (10.000đ) sau khi đã thu hẹp (Ánh cần viết `stop_condition` trong tiêu chí cho khớp câu này).
+- Dừng hẳn khi: sau tối đa 2 vòng cải tiến mà vẫn còn lệnh ghi lỗi oan cho hãng thì dừng tự động ghi lỗi hãng (tắt `file_carrier_fault`); từ hai ngưỡng an toàn trở lên chưa đạt sau khi sửa, hoặc chi phí mỗi ticket vẫn cao hơn làm tay (10.000đ) sau khi đã thu hẹp, thì dừng hẳn trợ lý (khớp `stop_condition` và `decision_rule` "Dừng" trong bản tiêu chí của Ánh).
 - Cách dừng, từng bước: (1) NV-TUNG mở `config/switches.json`, đổi thao tác cần tắt từ "on" sang "off"; (2) thu hẹp thì sửa `business.pilot_scope` trong `config/operating_gates.json` (đổi `mode` sang `warehouse` hoặc `percent`); (3) ghi giờ dừng và lý do vào nhóm chat trực vận hành pilot; (4) NV-OANH báo hãng hoặc shop bị ảnh hưởng.
 - Từ tín hiệu đỏ đến lúc dừng xong tối đa 15 phút; người bấm: NV-TUNG (nếu vắng, NV-HANH thay).
 - Khi đã dừng, ticket đang chờ đi đâu, ai xử lý: chuyển sang hàng chờ người duyệt, NV-HANH và người trực xử lý tay theo quy trình làm tay; khách được báo "đang được nhân viên xử lý", không im lặng.
