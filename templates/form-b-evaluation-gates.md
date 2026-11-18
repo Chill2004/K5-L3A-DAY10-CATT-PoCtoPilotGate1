@@ -284,13 +284,13 @@ python3 -m unittest discover -s tests
 
 | # | Cổng (hàm và nhánh, ví dụ `write_gate` khi `tool == "issue_refund"`) | Ứng với dòng nào ở B6 / B4 | Chặn điều gì, dựa vào nguồn sự thật nào | Mã lần chạy `base · after` | Ca đang đúng nào bị hỏng? (phải là "không") |
 |---|---|---|---|---|---|
-| 1 | `pre_guard`: ghim chính sách đang có hiệu lực theo `as_of` | Đề xuất rủi ro chính sách hết hạn; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tra ngày hiệu lực bằng `H.effective_policy`, không phụ thuộc cờ `index_active`; thiếu chính sách thì chuyển người | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
-| 2 | `write_gate`, nhánh `issue_refund`: kiểm chứng quyền lợi, phê duyệt và sổ cái | Đề xuất rủi ro hoàn sai/ghi lặp; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tính tiền từ đúng kiện hàng, tracking DB và chính sách; sửa tiền và bên trả về quyền lợi chính sách; kiểm tra phê duyệt đúng ticket/đơn/khách, còn hạn, đủ tiền và chưa dùng; chặn khoản hoàn lặp theo sổ cái | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
-| 3 | `write_gate`, nhánh `file_carrier_fault`: kiểm chứng căn cứ và đối tượng quy lỗi | Đề xuất rủi ro ghi lỗi oan hãng; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Dùng `H.carrier_at_fault` trên tracking của kiện hàng được chọn; không đủ căn cứ thì bỏ lệnh; đủ căn cứ thì sửa đúng kiện/hãng/tài xế/độ trễ, chặn bản ghi trùng | Chờ tích hợp và đánh giá | Chưa xác minh bằng đánh giá hồi quy |
+| 1 | `pre_guard`: ghim chính sách đang có hiệu lực theo `as_of` | Đề xuất rủi ro chính sách hết hạn; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tra ngày hiệu lực bằng `H.effective_policy`, không phụ thuộc cờ `index_active`; thiếu chính sách thì chuyển người | base: `R-base-before-20261118-162551-7b0ef9` · after: `R-base-after-20261118-163513-9f53d0` | Không có ca trước đúng bị hỏng trên bộ nền; bản after đạt 110/110 lần chạy |
+| 2 | `write_gate`, nhánh `issue_refund`: kiểm chứng quyền lợi, phê duyệt và sổ cái | Đề xuất rủi ro hoàn sai/ghi lặp; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Tính tiền từ đúng kiện hàng, tracking DB và chính sách; sửa tiền và bên trả về quyền lợi chính sách; kiểm tra phê duyệt đúng ticket/đơn/khách, còn hạn, đủ tiền và chưa dùng; chặn khoản hoàn lặp theo sổ cái | base: `R-base-before-20261118-162551-7b0ef9` · after: `R-base-after-20261118-163513-9f53d0` | Không có ca trước đúng bị hỏng trên bộ nền; bản after đạt 110/110 lần chạy |
+| 3 | `write_gate`, nhánh `file_carrier_fault`: kiểm chứng căn cứ và đối tượng quy lỗi | Đề xuất rủi ro ghi lỗi oan hãng; nhóm cần đối chiếu và ghi dòng B6/B4 tương ứng | Dùng `H.carrier_at_fault` trên tracking của kiện hàng được chọn; không đủ căn cứ thì bỏ lệnh; đủ căn cứ thì sửa đúng kiện/hãng/tài xế/độ trễ, chặn bản ghi trùng | base: `R-base-before-20261118-162551-7b0ef9` · after: `R-base-after-20261118-163513-9f53d0` | Không có ca trước đúng bị hỏng trên bộ nền; bản after đạt 110/110 lần chạy |
 
 **Bằng chứng kiểm tra cổng số 2:** Trace `T-002@55`, suite `base`, stage `after` do Cường chạy: tracking DB ghi nhận trễ 2 ngày, agent dùng lời khách khai 5 ngày và đề xuất hoàn 20.000đ. Cổng `issue_refund` trả về `deny` vì không đủ điều kiện theo tracking DB và chính sách. Kết quả `denied`, hoàn 0đ, sổ cái, lỗi hãng và gửi hãng đều trống, khớp nhãn — `ĐẠT`. Nhánh cổng `file_carrier_fault` chưa được gọi trong ca này vì luồng dừng sau khi khoản hoàn bị chặn. Trace này chưa xác minh hồi quy toàn bộ bộ nền và không thay thế mã lần chạy `eval`.
 
-**Kiểm tra công khai:** Cường đã chạy `python -m unittest discover -s tests`, kết quả 13 tests, `OK`. Đánh giá toàn bộ bộ nền đang chờ bản tiêu chí đã ký được tích hợp; các cột mã lần chạy và kết luận hồi quy sẽ bổ sung sau khi chạy đánh giá thành công.
+**Kiểm tra công khai và đánh giá bộ nền:** Cường đã chạy `python -m unittest discover -s tests`, kết quả 13 tests, `OK`. Baseline `R-base-before-20261118-162551-7b0ef9` đạt 109/110 lần chạy, hoàn sai 20.000đ và có 1 lỗi hãng oan. Bản after `R-base-after-20261118-163513-9f53d0` đạt 110/110 lần chạy, `pass_rate = 1.0`, `pass_k = 1.0`, hoàn sai 0đ, hoàn thiếu 0đ, lỗi hãng oan 0 và lộ PII 0. Không có ca trước đúng bị hỏng trên bộ nền. Lệnh `lab10.gate` xác nhận toàn bộ ngưỡng bắt buộc, nên có và kinh doanh/vận hành đều đạt, tiêu chí hash `0138aa3c` còn nguyên. Chi phí mỗi ticket 5.565đ, ROI 0,8, tỷ lệ chuyển người duyệt 0,2273 và số ca ùn 0. Hai lần chạy khác cả cấu hình người trực (1 → 2 người), nên kết quả phản ánh bản tích hợp code và config. Các kết quả này áp dụng cho bộ nền; hiệu quả riêng của từng cổng cần đối chiếu trace tương ứng.
 
 **Giả định và giới hạn cần nhóm xác nhận:**
 
@@ -412,24 +412,26 @@ Chỉ chọn Tiếp tục khi mọi chỉ số bắt buộc đều đạt.
 Ba câu tự vấn trước khi viết: (1) Rủi ro còn lại có chấp nhận được như hiện trạng không? (2) Cần thêm biện pháp nào, tốn
 bao nhiêu thời gian? (3) Có phần nào của dự án không nên làm tiếp?
 
-| | **v1** (phút 105–115, TRƯỚC khi nhận thẻ sự cố) |
+**Thời điểm ghi nhận thực tế:** Bản chốt được tạo lúc `2026-11-18T16:41:57`, sau khi nhóm đã nhận và xem S4. Bảng dưới ghi kết quả bộ nền tại mốc chốt này; nhóm cần ghi nhận việc chốt muộn với Coach khi đối chiếu trình tự vòng 1.
+
+| | **v1** — bằng chứng bộ nền, chờ nhóm chốt quyết định |
 |---|---|
-| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | |
-| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | |
-| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: ________ · bộ nền với cổng vòng 1 (prepared): ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
-| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
-| Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
-| Khớp dòng nào trong `decision_rule` đã ký? | |
-| Nếu Thu hẹp: cắt phần nào, vì sao | |
-| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | |
-| Nếu Dừng: bài học ghi lại | |
-| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | |
-| Ngày quyết định lại (trừ khi Dừng) | |
-| PIC ký | |
+| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | `4b87d77`; tiêu chí hash `0138aa3c`, ký lúc `2026-11-18T16:13:20`, lệnh gate xác nhận còn nguyên |
+| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | `d6f44ae7`; thời điểm chốt thực tế `2026-11-18T16:41:57` |
+| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: `R-base-before-20261118-162551-7b0ef9` · bộ nền với cổng vòng 1 (prepared): `R-base-prepared-20261118-164321-9f53d0` |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Report prepared trên bộ nền ghi không vượt trần; toàn bộ ngưỡng đã ký đều đạt. Chi phí 5.565đ/ticket, ROI 0,8, số ca ùn 0, hoàn sai 0đ, lỗi hãng oan 0, lộ PII 0. Trần hoàn tự động của bàn chưa đặt, cần nhóm hoàn thiện config cho pilot. |
+| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | Phân khúc kho `?`: 5 trials, pass_rate 1,0 nhưng chi phí 10.359đ/ticket, cao hơn làm tay 10.000đ. Nếu xét riêng phân khúc này thì chưa đáp ứng mục tiêu chi phí; nhóm cần xác minh nguyên nhân và cân nhắc xử lý tay. Không suy ra tên kho thực tế từ ký hiệu `?`. |
+| Quyết định (khoanh một) | Chờ cả nhóm xác nhận sau khi đối chiếu `decision_rule`; kết quả bộ nền chưa đủ để tự chốt quyết định theo điều kiện gói sự cố trong bản đã ký. |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-base-prepared-20261118-164321-9f53d0`: 110/110 lần chạy đạt, pass_rate 1,0 ≥ 0,9 và pass_k 1,0 ≥ 0,8. |
+| Bằng chứng 2 | Cùng mã prepared: hoàn sai 0đ, lỗi hãng oan 0, lộ PII 0, đáp ứng cả ba ngưỡng an toàn bằng 0. Baseline `R-base-before-20261118-162551-7b0ef9` còn hoàn sai 20.000đ và 1 lỗi hãng oan. |
+| Bằng chứng 3 | Cùng mã prepared: chi phí 5.565đ ≤ 10.000đ/ticket, ROI 0,8 ≥ 0, số ca ùn 0; tỷ lệ chuyển người 0,2273 ≤ 0,4. Lệnh gate xác nhận mọi ngưỡng đã ký đều đạt trên bộ nền. |
+| Khớp dòng nào trong `decision_rule` đã ký? | Chưa chốt. Dòng “Tiếp tục” yêu cầu đạt cả bộ nền và gói sự cố; bảng này mới chứng minh bộ nền. Giữ nguyên tiêu chí đã ký và đối chiếu thêm bằng chứng S4 khi nhóm ra quyết định. |
+| Nếu Thu hẹp: cắt phần nào, vì sao | Chờ nhóm chọn quyết định; nếu thu hẹp cần ghi rõ phạm vi, nhân sự và đường chuyển ticket bị loại. |
+| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | Chờ nhóm chọn quyết định và xác định giả thuyết, người phụ trách, hạn cụ thể. |
+| Nếu Dừng: bài học ghi lại | Chờ nhóm chọn quyết định. |
+| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | Bộ nền không chứng minh khả năng chịu tải giờ sale dồn việc hoặc chi phí, độ đúng và chất lượng tracking ngoài thực tế; cần đối chiếu gói S4 và đo lại trong pilot thật. |
+| Ngày quyết định lại (trừ khi Dừng) | Nhóm cần xác nhận ngày, giờ cụ thể trước khi chốt bảng. |
+| PIC ký | Chờ người đại diện nhóm xác nhận và ký sau khi thống nhất quyết định. |
 
 Xong v1 thì lưu và đẩy một bản (sau mốc này không sửa cột v1):
 
