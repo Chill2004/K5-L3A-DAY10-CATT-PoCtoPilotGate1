@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | |
-| **Thước đo** (một câu, có đơn vị) | | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
+| **Bước / hành vi được đo** | Agent chọn số ngày trễ của kiện hàng để áp dụng chính sách hoàn tiền. | |
+| **Thước đo** (một câu, có đơn vị) | Tỷ lệ lần chạy agent chọn đúng số ngày trễ của kiện hàng so với tracking DB, đơn vị %. | |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | Dự kiến dùng bộ nền 22 ticket × 5 seed (110 lần chạy), sau khi tiêu chí đã được ký, commit và push. Độ trễ agent sử dụng lấy từ trace trong `runs/<mã lần chạy>/traces/`. Độ trễ chuẩn lấy từ tracking DB trong `data/world.json`, tính cho đúng kiện hàng bằng `H.db_delay_days(parcel, as_of)`: lấy ngày giao thực tế nếu có, nếu thiếu thì dùng `as_of`, trừ ngày hẹn giao và lấy tối thiểu bằng 0. Cường chịu trách nhiệm tạo và kiểm tra nhãn chuẩn, đối chiếu đúng ticket với kiện hàng. | |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | `100 × số lần chọn đúng độ trễ / số lần có chọn độ trễ và đủ dữ liệu đối chiếu`. Một lần được tính đúng khi độ trễ agent sử dụng bằng độ trễ chuẩn. Ca chuyển người duyệt trước bước chọn độ trễ được thống kê riêng và loại khỏi mẫu số. Ca thiếu trace hoặc thiếu dữ liệu chuẩn được loại khỏi mẫu số và báo riêng số lượng. Khi mẫu số bằng 0, báo “không tính được”. | |
 | **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | Không phát hiện tracking DB sai so với thực tế. Chọn đúng độ trễ chưa chứng minh số tiền hoàn hoặc quyết định ghi lỗi hãng đúng. Các ca bị loại khỏi mẫu số cần được xem riêng để tránh diễn giải tỷ lệ trên quá ít ca. | |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
